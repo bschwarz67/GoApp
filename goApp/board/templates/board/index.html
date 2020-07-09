@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+			.container input[type="radio"] {
+				opacity: 0;
+				position: fixed;
+				width: 0;
+			}
+
+			.container label {
+				display: inline-block;
+				background-color: #ddd;
+				padding: 10px 10px;
+				font-family: sans-serif, Arial;
+				border: 2px solid #444;
+				border-radius: 4px;
+				position: relative;
+				left: 10px;
+				top: 10px;
+			}
+
+			.container input[type="radio"]:checked + label {
+				background-color:#bfb;
+				border-color: #4c4;
+			}
+
+			.container div {
+				display: inline-block;
+				background-color: grey;
+			}
+			
+		</style>
+	</head>
+
+	<body>
+		{% load boardExtras %}
+		<form action="{% url 'board:play' %}"  method="post" class="container">
+		{% csrf_token %}
+			
+			{% for x in game.piecePositions|split %}
+				
+				<div>	
+					<input type="radio"  name="coordinate" value="{{ forloop.counter }}" id="coordinate{{ forloop.counter }}">
+					<label for="coordinate{{ forloop.counter }}"></label>
+				</div>
+				
+				{% if forloop.counter|divisibleby:"5" %}
+					<div></div>
+					<br><br>
+				{% endif %}
+			
+			{% endfor %}
+
+
+			<input type="submit" value="Play">
+		</form>
+	</body>
+</html>
