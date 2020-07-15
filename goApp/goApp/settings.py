@@ -27,11 +27,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = 'home.Player'
 
 # Application definition
 
 INSTALLED_APPS = [
     'board.apps.BoardConfig',
+	'home.apps.HomeConfig',
 	'opponentSelect.apps.OpponentselectConfig',
 	'django.contrib.admin',
     'django.contrib.auth',
