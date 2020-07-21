@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+		</style>
+	</head>
+	
+	<body>
+		{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+		<form action="{% url 'home:createPlayer' %}"  method="post">
+			{% csrf_token %}
+			Enter a name: <input type="text" name="name">					
+			<input type="submit" value="Create Player">
+		</form>
+
+		<form action="{% url 'home:changePlayerColor' %}"  method="post">
+			{% csrf_token %}
+			Please select your color:
+			<input type="radio" id="white" name="color" value="white">
+			<label for="white">White</label><br>
+			<input type="radio" id="black" name="color" value="black">
+			<label for="black">Black</label><br>
+			<input type="submit" value="Pick Color">
+		</form>
+
+		
+		<form action="{% url 'home:playerMatch' %}"  method="post">
+			{% csrf_token %}
+							
+			<select id="opponent" name="opponent" size="10">
+				{% for x in opponentOptions %}
+					<option value="{{ x.id }}">{{ x.username }}</option>
+				{% endfor %}
+			</select>
+
+				
+			<input type="submit" value="Challenge">
+		</form>
+	</body>
+</html>
