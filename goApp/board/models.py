@@ -5,5 +5,4 @@ class Game(models.Model):
 	playerTwo = models.CharField(max_length=100)
 	size = models.CharField(max_length=5)
 	piecePositions = models.CharField(max_length=60, default='0000000000000000000000000000000000000000000000000')
-
 # Create your models here.

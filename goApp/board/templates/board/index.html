@@ -65,7 +65,6 @@
 		{% load boardExtras %}
 		<form action="{% url 'board:play' %}"  method="post" class="piece-container">
 		{% csrf_token %}
-			
 			{% for x in game.piecePositions|split %}
 				
 				<div>	
@@ -83,7 +82,6 @@
 			{% for x in 36|numberRange %}
 
 				<div>	
-					<div></div>
 				</div>
 
 			{% endfor %}

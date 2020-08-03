@@ -28,13 +28,12 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = 'home.Player'
-
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True;
 # Application definition
 
 INSTALLED_APPS = [
     'board.apps.BoardConfig',
 	'home.apps.HomeConfig',
-	'opponentSelect.apps.OpponentselectConfig',
 	'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
