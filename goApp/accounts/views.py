@@ -2,15 +2,16 @@ from django.utils import timezone
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+
+from home.admin import CustomUserCreationForm
 from home.models import Player 
 from django.contrib.sessions.models import Session
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
 
 def signup(request):
 	
 	if (request.method == 'POST'):
-		form = UserCreationForm(request.POST)
+		form = CustomUserCreationForm(request.POST)
 		if (form.is_valid()):
 			#process data
 			print(form.cleaned_data['password2'])
@@ -20,7 +21,7 @@ def signup(request):
 			return HttpResponseRedirect(reverse('home:index'))
 	else:
 
-		form = UserCreationForm()
+		form = CustomUserCreationForm()
 	
 	return render(request, 'registration/signup.html', {'form': form,})
 
