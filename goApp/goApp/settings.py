@@ -34,6 +34,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True;
 INSTALLED_APPS = [
     'board.apps.BoardConfig',
 	'home.apps.HomeConfig',
+	'accounts.apps.AccountsConfig',
 	'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -58,7 +59,9 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+			'/Users/bryan/desktop/personalCodeRepo/goApp/goApp/goApp/templates/goApp',
+		],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

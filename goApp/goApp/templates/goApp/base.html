@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>{% block title %} Simple Go {% endblock %}</title>
+		<style>{% block css %} {% endblock %}</style>
+		<a href="/accounts/login">Login</a>
+		<a href="/accounts/logout">Logout</a>
+	</head>
+
+	<body>
+		{% block content %} {% endblock %}
+	</body>
+</html>

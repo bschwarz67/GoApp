@@ -6,7 +6,7 @@ app_name = 'home'
 urlpatterns = [
 	path('', views.index, name='index'),
 	re_path(r'^playerMatch/*$', views.playerMatch, name='playerMatch'),
-	path('createPlayer/', views.createPlayer, name='createPlayer'),
+	path('createTempPlayer/', views.createTempPlayer, name='createTempPlayer'),
 	path('changePlayerColor/', views.changePlayerColor, name='changePlayerColor'),
 ]
 

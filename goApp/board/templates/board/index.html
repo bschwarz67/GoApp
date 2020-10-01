@@ -1,7 +1,8 @@
-<!DOCTYPE html>
-<html>
+{% extends "base.html" %}
+
 	<head>
 		<style>
+		{% block css %}
 			.piece-container {
 				display: grid;
 				grid-template-columns: 43px 43px 43px 43px 43px 43px 43px;
@@ -58,10 +59,11 @@
 				left: 22px;
 				z-index: 1;
 			}
+		{% endblock %}
 		</style>
 	</head>
-
 	<body>
+	{% block content %}
 		{% load boardExtras %}
 		<form action="{% url 'board:play' %}"  method="post" class="piece-container">
 		{% csrf_token %}
@@ -87,5 +89,5 @@
 			{% endfor %}
 		</div>
 	
+	{% endblock %}
 	</body>
-</html>

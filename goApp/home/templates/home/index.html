@@ -1,16 +1,18 @@
-<!DOCTYPE html>
-<html>
+	{% extends "base.html" %}
 	<head>
 		<style>
+		{% block style %}
+		{% endblock %}
 		</style>
 	</head>
 	
 	<body>
+	{% block content %}
 		{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-		<form action="{% url 'home:createPlayer' %}"  method="post">
+		<form action="{% url 'home:createTempPlayer' %}"  method="post">
 			{% csrf_token %}
 			Enter a name: <input type="text" name="name">					
-			<input type="submit" value="Create Player">
+			<input type="submit" value="Create Temporary Player">
 		</form>
 
 		<form action="{% url 'home:changePlayerColor' %}"  method="post">
@@ -36,5 +38,5 @@
 				
 			<input type="submit" value="Challenge">
 		</form>
+	{% endblock %}
 	</body>
-</html>

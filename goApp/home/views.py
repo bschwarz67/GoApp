@@ -50,7 +50,7 @@ def index(request):
 		return render(request, 'home/index.html', context) 
 
 
-def createPlayer(request):
+def createTempPlayer(request):
 	if(Player.objects.filter(username=request.POST['name']).exists()):
 		if('username' in request.session):
 			if(request.session['username'] == request.POST['name']):
