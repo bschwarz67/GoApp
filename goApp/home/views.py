@@ -1,15 +1,15 @@
 #TODO:  need to check and see if cookies are allowed somewhere, playerMatch function, 
 #create list for Player objects of previous aliases, allow switching. 
-##
-##
-##
+#when loggin in, session gets '_auth_user_id' variable
+
 
 from django.utils import timezone
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from .models import Player 
-from django.contrib.sessions.models import Session
+
+
 
 def index(request):
 	if ('username' not in request.session):
