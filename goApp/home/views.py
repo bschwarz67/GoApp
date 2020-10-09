@@ -1,4 +1,4 @@
-#TODO:  need to check and see if cookies are allowed somewhere, playerMatch function, 
+#TODO:  need to check and see if cookies are allowed somewhere,
 #create list for Player objects of previous aliases, allow switching. 
 #when loggin in, session gets '_auth_user_id' variable
 
@@ -101,7 +101,8 @@ def changePlayerColor(request):
 		request.session['error_message'] = "No person selected, please choose a person"
 		return HttpResponseRedirect(reverse('home:index'))
 		
-
+"""
 def playerMatch(request):
 
 	return HttpResponse(request.GET.get('Method'))
+"""

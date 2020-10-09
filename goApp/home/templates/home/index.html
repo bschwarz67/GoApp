@@ -1,7 +1,7 @@
 	{% extends "base.html" %}
 	<head>
 		<style>
-		{% block style %}
+		{% block css %}
 		{% endblock %}
 		</style>
 	</head>
@@ -11,7 +11,7 @@
 		{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 		<form action="{% url 'home:createTempPlayer' %}"  method="post">
 			{% csrf_token %}
-			Enter a name: <input type="text" name="name">					
+			Enter a name: <input type="text" name="name">
 			<input type="submit" value="Create Temporary Player">
 		</form>
 
@@ -25,18 +25,48 @@
 			<input type="submit" value="Pick Color">
 		</form>
 
-		
-		<form action="{% url 'home:playerMatch' %}"  method="post">
-			{% csrf_token %}
-							
-			<select id="opponent" name="opponent" size="10">
-				{% for x in opponentOptions %}
-					<option value="{{ x.id }}">{{ x.username }}</option>
-				{% endfor %}
-			</select>
 
-				
-			<input type="submit" value="Challenge">
-		</form>
+
+
+
+		<select id="opponent-select" size="30">
+			{% for x in opponentOptions %}
+				<option value="{{ x.id }}">{{ x.username }}</option>
+			{% endfor %}
+		</select>
+		<input id="opponent-submit" type="submit" value="Challenge">
+
+		<script>
+			const challengeSocket = new WebSocket(
+				'ws://'
+				+ window.location.host
+				+ '/ws/challenge/'
+				+ '/'
+        	);
+
+			challengeSocket.onmessage = function(e) {
+				const data = JSON.parse(e.data);
+				var newOption = document.createElement("option");
+				newOption.value = data.message;
+				newOption.text = data.message;
+				document.querySelector('#opponent-select').add(newOption);
+        	};
+
+        	challengeSocket.onclose = function(e) {
+            	console.error('Challenge socket closed unexpectedly');
+        	};
+
+			document.querySelector('#opponent-submit').onclick = function(e) {
+				const messageInputDom = document.querySelector('#opponent-select');
+				const message = messageInputDom.options[messageInputDom.selectedIndex].value;
+				challengeSocket.send(JSON.stringify({
+					'message': message
+				}));
+				messageInputDom.value = '';
+        	};
+		</script>
+
+
+
 	{% endblock %}
 	</body>
