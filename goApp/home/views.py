@@ -1,103 +1,120 @@
 #TODO:  need to check and see if cookies are allowed somewhere,
 #create list for Player objects of previous aliases, allow switching. 
-#when loggin in, session gets '_auth_user_id' variable
 
-
+from django.contrib.auth import login
 from django.utils import timezone
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
-from .models import Player 
+from .models import Player
 
 
 
 def index(request):
-	if ('username' not in request.session):
-		availablePlayers = []
-		for player in Player.objects.all():
-			timeSinceLastOutOfGameAction = timezone.now() - player.lastOutOfGameAction
-			if((timeSinceLastOutOfGameAction.seconds <= 1200)):
-				availablePlayers.append(player)
-		context = {
-			'opponentOptions': availablePlayers,
-		}		
-		if('error_message' in request.session):
-			context['error_message'] = request.session['error_message']
+	if (request.user.is_authenticated):
+		if ('error_message' in request.session):
+			availablePlayers = []
+			for player in Player.objects.all():
+				timeSinceLastOutOfGameAction = timezone.now() - player.lastOutOfGameAction
+				if ((timeSinceLastOutOfGameAction.seconds <= 1200) and (
+				not player.username == request.user)):
+					availablePlayers.append(player)
+			context = {
+				'opponentOptions': availablePlayers,
+				'currentUsername': request.user,
+				'error_message': request.session['error_message'],
+			}
 			del request.session['error_message']
-		return render(request, 'home/index.html', context) 
-	else:
-		if (Player.objects.get(username=request.session['username']).color): 
+			return render(request, 'home/index.html', context)
+
+		if (Player.objects.get(username=request.user).color):
 			availableBlackPlayers = []
 			for player in Player.objects.all():
 				timeSinceLastOutOfGameAction = timezone.now() - player.lastOutOfGameAction
-				if((timeSinceLastOutOfGameAction.seconds <= 1200) and (not player.color) and (not player.username == request.session['username'])):
+				if((timeSinceLastOutOfGameAction.seconds <= 1200) and (not player.color) and (not player.username == request.user)):
 					availableBlackPlayers.append(player)
 			context = {
 				'opponentOptions': availableBlackPlayers,
-			}		
-		else: 
+				'currentUsername': request.user,
+			}
+		else:
 			availableWhitePlayers = []
 			for player in Player.objects.all():
 				timeSinceLastOutOfGameAction =  timezone.now() - player.lastOutOfGameAction
-				if((timeSinceLastOutOfGameAction.seconds <= 1200) and (player.color) and (not player.username == request.session['username'])):
+				if((timeSinceLastOutOfGameAction.seconds <= 1200) and (player.color) and (not player.username == request.user)):
 					availableWhitePlayers.append(player)
 			context = {
 				'opponentOptions': availableWhitePlayers,
+				'currentUsername': request.user,
 			}
-		if('error_message' in request.session):
+
+		return render(request, 'home/index.html', context)
+
+	else:
+		availablePlayers = []
+		for player in Player.objects.all():
+			timeSinceLastOutOfGameAction = timezone.now() - player.lastOutOfGameAction
+			if ((timeSinceLastOutOfGameAction.seconds <= 1200)):
+				availablePlayers.append(player)
+		context = {
+			'opponentOptions': availablePlayers,
+		}
+		if ('error_message' in request.session):
 			context['error_message'] = request.session['error_message']
 			del request.session['error_message']
-		return render(request, 'home/index.html', context) 
+
+		return render(request, 'home/index.html', context)
+
 
 
 def createTempPlayer(request):
 	if(Player.objects.filter(username=request.POST['name']).exists()):
-		if('username' in request.session):
-			if(request.session['username'] == request.POST['name']):
-				Player.objects.get(username=request.session['username']).save()		
+		if(request.user.is_authenticated):
+			if(request.user.username == request.POST['name']):
+				Player.objects.get(username=request.user).save()
 				return HttpResponseRedirect(reverse('home:index'))
-			else: 
-				Player.objects.get(username=request.session['username']).save()			
+			else:
+				Player.objects.get(username=request.user).save()
 				request.session['error_message'] = "That username already exists, please choose another"
 				return HttpResponseRedirect(reverse('home:index'))
-
 		else:
-				request.session['error_message'] = "That username already exists, please choose another"
-				return HttpResponseRedirect(reverse('home:index'))
+			request.session['error_message'] = "That username already exists, please choose another"
+			return HttpResponseRedirect(reverse('home:index'))
 	else:
-		if('username' in request.session):
-			updatedPlayer = Player.objects.get(username=request.session['username'])
+		if(request.user.is_authenticated):
+			updatedPlayer = Player.objects.get(username=request.user)
 			updatedPlayer.username = request.POST['name']
 			updatedPlayer.save()
-			request.session['username'] = request.POST['name']
 			return HttpResponseRedirect(reverse('home:index'))
 		else:
 			newPlayerUsername = request.POST['name']
 			newPlayer = Player(username=newPlayerUsername)
 			newPlayer.save()
-			request.session['username'] = newPlayerUsername
+			login(request, newPlayer)
 			return HttpResponseRedirect(reverse('home:index'))
 
 
 
 
 def changePlayerColor(request):
-	if ('username' in request.session):
+	if (request.user.is_authenticated):
 		if('color' in request.POST):
 			if (request.POST['color'] == 'white'):
-				updatedPlayer = Player.objects.get(username=request.session['username'])
+				updatedPlayer = Player.objects.get(username=request.user)
 				updatedPlayer.color = True
 				updatedPlayer.save()
 				return HttpResponseRedirect(reverse('home:index'))
 			else:
-				updatedPlayer = Player.objects.get(username=request.session['username'])
+				updatedPlayer = Player.objects.get(username=request.user)
 				updatedPlayer.color = False
 				updatedPlayer.save()
 				return HttpResponseRedirect(reverse('home:index'))
 		else:
+			print("here")
 			request.session['error_message'] = "No color selected, please choose a color"
 			return HttpResponseRedirect(reverse('home:index'))
 	else:
+		print("here2")
 		request.session['error_message'] = "No person selected, please choose a person"
 		return HttpResponseRedirect(reverse('home:index'))
 		

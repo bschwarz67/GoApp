@@ -2,6 +2,9 @@
 	<head>
 		<style>
 		{% block css %}
+			select {
+				width: 150px;
+			}
 		{% endblock %}
 		</style>
 	</head>
@@ -29,19 +32,46 @@
 
 
 
-		<select id="opponent-select" size="30">
+		<select id="opponent-select" size="15">
 			{% for x in opponentOptions %}
-				<option value="{{ x.id }}">{{ x.username }}</option>
+				<option value="{{ x.id }} {{ x.username }}">{{ x.username }}</option>
 			{% endfor %}
 		</select>
 		<input id="opponent-submit" type="submit" value="Challenge">
 
+		<br>
+		<br>
+
+		<select id="invitations" size="15">
+		</select>
+		<input id="accept" type="submit" value="Accept">
+
+		<br>
+		<br>
+
+		<select id="current-games" size="15">
+		</select>
+
 		<script>
+
+
+
+			function redirectToBoard(e) {
+				let newSlug = e.id + "_" + "{{ currentUsername }}" + "_game";
+				"{% url 'board:createdGame' newSlug as createdGameUrl%}";
+				window.location.href=createdGameUrl;
+			}
+
+
+
+
+
+
+
 			const challengeSocket = new WebSocket(
 				'ws://'
 				+ window.location.host
 				+ '/ws/challenge/'
-				+ '/'
         	);
 
 			challengeSocket.onmessage = function(e) {
