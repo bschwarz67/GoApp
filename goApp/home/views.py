@@ -1,5 +1,9 @@
 #TODO:  need to check and see if cookies are allowed somewhere,
-#create list for Player objects of previous aliases, allow switching. 
+#create list for Player objects of previous aliases, allow switching.
+
+
+#today, form validation for quick play and create user, cant have space is username think regex forms html
+
 
 from django.contrib.auth import login
 from django.utils import timezone
@@ -21,7 +25,6 @@ def index(request):
 					availablePlayers.append(player)
 			context = {
 				'opponentOptions': availablePlayers,
-				'currentUsername': request.user,
 				'error_message': request.session['error_message'],
 			}
 			del request.session['error_message']
@@ -35,7 +38,6 @@ def index(request):
 					availableBlackPlayers.append(player)
 			context = {
 				'opponentOptions': availableBlackPlayers,
-				'currentUsername': request.user,
 			}
 		else:
 			availableWhitePlayers = []
@@ -45,7 +47,6 @@ def index(request):
 					availableWhitePlayers.append(player)
 			context = {
 				'opponentOptions': availableWhitePlayers,
-				'currentUsername': request.user,
 			}
 
 		return render(request, 'home/index.html', context)
@@ -110,16 +111,8 @@ def changePlayerColor(request):
 				updatedPlayer.save()
 				return HttpResponseRedirect(reverse('home:index'))
 		else:
-			print("here")
 			request.session['error_message'] = "No color selected, please choose a color"
 			return HttpResponseRedirect(reverse('home:index'))
 	else:
-		print("here2")
 		request.session['error_message'] = "No person selected, please choose a person"
 		return HttpResponseRedirect(reverse('home:index'))
-		
-"""
-def playerMatch(request):
-
-	return HttpResponse(request.GET.get('Method'))
-"""

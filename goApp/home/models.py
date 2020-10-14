@@ -1,4 +1,4 @@
-#need to put in username for create
+#TODO need to put in username for create
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from board.models import Game

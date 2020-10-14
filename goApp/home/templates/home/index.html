@@ -34,7 +34,7 @@
 
 		<select id="opponent-select" size="15">
 			{% for x in opponentOptions %}
-				<option value="{{ x.id }} {{ x.username }}">{{ x.username }}</option>
+				<option value="{{ x.username }}">{{ x.username }}</option>
 			{% endfor %}
 		</select>
 		<input id="opponent-submit" type="submit" value="Challenge">
@@ -66,13 +66,16 @@
 
 
 
-
+			{% if user.is_authenticated %}
 
 			const challengeSocket = new WebSocket(
 				'ws://'
 				+ window.location.host
 				+ '/ws/challenge/'
         	);
+
+
+
 
 			challengeSocket.onmessage = function(e) {
 				const data = JSON.parse(e.data);
@@ -88,12 +91,14 @@
 
 			document.querySelector('#opponent-submit').onclick = function(e) {
 				const messageInputDom = document.querySelector('#opponent-select');
-				const message = messageInputDom.options[messageInputDom.selectedIndex].value;
+				let message = messageInputDom.options[messageInputDom.selectedIndex].value;
 				challengeSocket.send(JSON.stringify({
 					'message': message
 				}));
 				messageInputDom.value = '';
         	};
+
+        	{% endif %}
 		</script>
 
 
