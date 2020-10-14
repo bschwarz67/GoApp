@@ -1,5 +1,3 @@
-#TODO change message sent from revieved to reflect that the user is challenging another player
-
 import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
@@ -31,27 +29,28 @@ class ChallengeConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        message = text_data_json['message']
+        message = self.scope['user'].username
         challenge_player_group = "challenge_"
-        challenge_player_group += message
+        challenge_player_group += text_data_json['message']
 
         #connect to challenge player group
         async_to_sync(self.channel_layer.group_add)(
             challenge_player_group,
             self.channel_name
         )
-        print("joined {}'s challenge_player_group".format(message))
+        print("joined {}'s challenge_player_group".format(text_data_json['message']))
 
         # Send message to challenge player group
         async_to_sync(self.channel_layer.group_send)(
             challenge_player_group,
             {
                 'type': 'challenge_player',
-                'message': message
+                'message': message,
+                'recipient' : text_data_json['message']
             }
         )
 
-        #get out of group of the player you just challenged
+        #get out of group the player you just challenged
         async_to_sync(self.channel_layer.group_discard)(
             challenge_player_group,
             self.channel_name
@@ -62,8 +61,9 @@ class ChallengeConsumer(WebsocketConsumer):
     # Receive message from challenge player group
     def challenge_player(self, event):
         message = event['message']
+        recipient = event['recipient']
         print("{} got message {}".format(self.scope['user'].username, message))
-        if (message == self.scope['user'].username):
+        if (recipient == self.scope['user'].username):
 
             # Send message to WebSocket
             self.send(text_data=json.dumps({
