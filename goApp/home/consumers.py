@@ -62,12 +62,14 @@ class ChallengeConsumer(WebsocketConsumer):
     def challenge_player(self, event):
         message = event['message']
         recipient = event['recipient']
-        print("{} got message {}".format(self.scope['user'].username, message))
-        if (recipient == self.scope['user'].username):
+        username = self.scope['user'].username
+
+        print("{} got message {}".format(username, message))
+        if (recipient == username):
 
             # Send message to WebSocket
             self.send(text_data=json.dumps({
                 'message': message
             }))
-            print("{} sent message".format(self.scope['user'].username))
+            print("{} sent message".format(username))
 

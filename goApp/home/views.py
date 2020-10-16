@@ -2,8 +2,6 @@
 #create list for Player objects of previous aliases, allow switching.
 
 
-#today, form validation for quick play and create user, cant have space is username think regex forms html
-
 
 from django.contrib.auth import login
 from django.utils import timezone
@@ -16,13 +14,15 @@ from .models import Player
 
 def index(request):
 	if (request.user.is_authenticated):
-		if ('error_message' in request.session):
-			availablePlayers = []
-			for player in Player.objects.all():
-				timeSinceLastOutOfGameAction = timezone.now() - player.lastOutOfGameAction
-				if ((timeSinceLastOutOfGameAction.seconds <= 1200) and (
-				not player.username == request.user)):
+		availablePlayers = []
+		for player in Player.objects.all():
+			timeSinceLastOutOfGameAction = timezone.now() - player.lastOutOfGameAction
+
+			if (timeSinceLastOutOfGameAction.days < 1):
+				if (timeSinceLastOutOfGameAction.seconds <= 1200 and not player.username == request.user and not player.color == request.user.color):
 					availablePlayers.append(player)
+
+		if ('error_message' in request.session):
 			context = {
 				'opponentOptions': availablePlayers,
 				'error_message': request.session['error_message'],
@@ -30,33 +30,21 @@ def index(request):
 			del request.session['error_message']
 			return render(request, 'home/index.html', context)
 
-		if (Player.objects.get(username=request.user).color):
-			availableBlackPlayers = []
-			for player in Player.objects.all():
-				timeSinceLastOutOfGameAction = timezone.now() - player.lastOutOfGameAction
-				if((timeSinceLastOutOfGameAction.seconds <= 1200) and (not player.color) and (not player.username == request.user)):
-					availableBlackPlayers.append(player)
-			context = {
-				'opponentOptions': availableBlackPlayers,
-			}
 		else:
-			availableWhitePlayers = []
-			for player in Player.objects.all():
-				timeSinceLastOutOfGameAction =  timezone.now() - player.lastOutOfGameAction
-				if((timeSinceLastOutOfGameAction.seconds <= 1200) and (player.color) and (not player.username == request.user)):
-					availableWhitePlayers.append(player)
 			context = {
-				'opponentOptions': availableWhitePlayers,
+				'opponentOptions': availablePlayers,
 			}
-
-		return render(request, 'home/index.html', context)
+			return render(request, 'home/index.html', context)
 
 	else:
 		availablePlayers = []
 		for player in Player.objects.all():
 			timeSinceLastOutOfGameAction = timezone.now() - player.lastOutOfGameAction
-			if ((timeSinceLastOutOfGameAction.seconds <= 1200)):
-				availablePlayers.append(player)
+
+			if (timeSinceLastOutOfGameAction.days < 1):
+				if (timeSinceLastOutOfGameAction.seconds <= 1200):
+					availablePlayers.append(player)
+
 		context = {
 			'opponentOptions': availablePlayers,
 		}

@@ -14,7 +14,7 @@
 		{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 		<form action="{% url 'home:createTempPlayer' %}"  method="post">
 			{% csrf_token %}
-			Enter a name: <input type="text" name="name">
+			Enter a name: <input type="text" name="name" pattern="[a-zA-z0-9]*" maxlength="10">
 			<input type="submit" value="Create Temporary Player">
 		</form>
 
