@@ -1,7 +1,6 @@
 #TODO:  need to check and see if cookies are allowed somewhere,
 #create list for Player objects of previous aliases, allow switching.
-
-
+#figure out how to save every time user does out of game action, think changePlayerColor and the challenges
 
 from django.contrib.auth import login
 from django.utils import timezone
@@ -13,42 +12,33 @@ from .models import Player
 
 
 def index(request):
-	if (request.user.is_authenticated):
+	if request.user.is_authenticated:
 		availablePlayers = []
 		for player in Player.objects.all():
 			timeSinceLastOutOfGameAction = timezone.now() - player.lastOutOfGameAction
-
-			if (timeSinceLastOutOfGameAction.days < 1):
-				if (timeSinceLastOutOfGameAction.seconds <= 1200 and not player.username == request.user and not player.color == request.user.color):
+			if timeSinceLastOutOfGameAction.days < 1:
+				if timeSinceLastOutOfGameAction.seconds <= 1200 and not player.username == request.user and not player.color == request.user.color:
 					availablePlayers.append(player)
-
-		if ('error_message' in request.session):
-			context = {
-				'opponentOptions': availablePlayers,
-				'error_message': request.session['error_message'],
-			}
+		context = {
+			'opponentOptions': availablePlayers,
+		}
+		if 'error_message' in request.session:
+			context['error_message'] = request.session['error_message']
 			del request.session['error_message']
-			return render(request, 'home/index.html', context)
 
-		else:
-			context = {
-				'opponentOptions': availablePlayers,
-			}
-			return render(request, 'home/index.html', context)
+		return render(request, 'home/index.html', context)
 
 	else:
 		availablePlayers = []
 		for player in Player.objects.all():
 			timeSinceLastOutOfGameAction = timezone.now() - player.lastOutOfGameAction
-
-			if (timeSinceLastOutOfGameAction.days < 1):
-				if (timeSinceLastOutOfGameAction.seconds <= 1200):
+			if timeSinceLastOutOfGameAction.days < 1:
+				if timeSinceLastOutOfGameAction.seconds <= 1200:
 					availablePlayers.append(player)
-
 		context = {
 			'opponentOptions': availablePlayers,
 		}
-		if ('error_message' in request.session):
+		if 'error_message' in request.session:
 			context['error_message'] = request.session['error_message']
 			del request.session['error_message']
 
