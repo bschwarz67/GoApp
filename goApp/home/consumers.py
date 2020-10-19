@@ -4,24 +4,19 @@ from channels.generic.websocket import WebsocketConsumer
 
 class ChallengeConsumer(WebsocketConsumer):
     def connect(self):
-
         self.player_name = self.scope['user']
-        self.challenge_player_group = 'challenge_%s' % self.player_name
-
-        # Join challenge player group
+        self.player_group = '%s_group' % self.player_name
+        # Join player group
         async_to_sync(self.channel_layer.group_add)(
-            self.challenge_player_group,
+            self.player_group,
             self.channel_name
         )
-
         self.accept()
-        print("{} joined self".format(self.challenge_player_group))
 
     def disconnect(self, close_code):
         # Leave challenge player group
-        print(self.challenge_player_group)
         async_to_sync(self.channel_layer.group_discard)(
-            self.challenge_player_group,
+            self.player_group,
             self.channel_name
         )
 
@@ -29,47 +24,83 @@ class ChallengeConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        message = self.scope['user'].username
-        challenge_player_group = "challenge_"
-        challenge_player_group += text_data_json['message']
+        acting_player = self.scope['user'].username
+        player_group = text_data_json['message']
+        player_group += "_group"
 
-        #connect to challenge player group
+        #connect to player group
         async_to_sync(self.channel_layer.group_add)(
-            challenge_player_group,
+            player_group,
             self.channel_name
         )
-        print("joined {}'s challenge_player_group".format(text_data_json['message']))
 
-        # Send message to challenge player group
-        async_to_sync(self.channel_layer.group_send)(
-            challenge_player_group,
-            {
-                'type': 'challenge_player',
-                'message': message,
-                'recipient' : text_data_json['message']
-            }
-        )
+        if text_data_json['messageType'] == 'accept':
+            print("here")
+            # Send accept message to both players involved
+            async_to_sync(self.channel_layer.group_send)(
+                player_group,
+                {
+                    'type': 'accept_player',
+                    'accepting_player': acting_player,
+                    'accepted_player': text_data_json['message']
+                }
+            )
+        else:
+            # Send challenge message to challenged player
+            async_to_sync(self.channel_layer.group_send)(
+                player_group,
+                {
+                    'type': 'challenge_player',
+                    'challenging_player': acting_player,
+                    'challenged_player' : text_data_json['message']
+                }
+            )
+
 
         #get out of group the player you just challenged
         async_to_sync(self.channel_layer.group_discard)(
-            challenge_player_group,
+            player_group,
             self.channel_name
         )
-        print("{} discarded group".format(self.scope['user'].username))
 
 
-    # Receive message from challenge player group
-    def challenge_player(self, event):
-        message = event['message']
-        recipient = event['recipient']
+
+    # Receive message from accepting player
+    def accept_player(self, event):
+        print("here2")
+        accepting_player = event['accepting_player']
+        accepted_player = event['accepted_player']
         username = self.scope['user'].username
 
-        print("{} got message {}".format(username, message))
-        if (recipient == username):
-
+        if (username == accepted_player):
+            # Send message to WebSocket
+            print("should be one here")
+            self.send(text_data=json.dumps({
+                'message': accepting_player,
+                'messageType': 'accept'
+            }))
+        elif (username == accepting_player):
+            print("and one here")
             # Send message to WebSocket
             self.send(text_data=json.dumps({
-                'message': message
+                'message': accepted_player,
+                'messageType': 'accept'
             }))
-            print("{} sent message".format(username))
+        else:
+            pass
+
+
+    # Receive message from challenging player
+    def challenge_player(self, event):
+        challenging_player = event['challenging_player']
+        challenged_player = event['challenged_player']
+        username = self.scope['user'].username
+
+        if (username == challenged_player):
+            # Send message to WebSocket
+            self.send(text_data=json.dumps({
+                'message': challenging_player,
+                'messageType': 'challenge'
+            }))
+
 

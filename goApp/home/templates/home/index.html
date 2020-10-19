@@ -30,44 +30,29 @@
 
 
 
-
-
 		<select id="opponent-select" size="15">
 			{% for x in opponentOptions %}
 				<option value="{{ x.username }}">{{ x.username }}</option>
 			{% endfor %}
 		</select>
-		<input id="opponent-submit" type="submit" value="Challenge">
+		<input id="opponent-challenge" type="submit" value="Challenge">
 
 		<br>
 		<br>
 
 		<select id="invitations" size="15">
 		</select>
-		<input id="accept" type="submit" value="Accept">
+		<input id="opponent-accept" type="submit" value="Accept">
 
 		<br>
 		<br>
 
 		<select id="current-games" size="15">
 		</select>
+		<input id="should-this-be" type="submit" value="here?">
 
 		<script>
-
-
-
-			function redirectToBoard(e) {
-				let newSlug = e.id + "_" + "{{ currentUsername }}" + "_game";
-				"{% url 'board:createdGame' newSlug as createdGameUrl%}";
-				window.location.href=createdGameUrl;
-			}
-
-
-
-
-
 			{% if user.is_authenticated %}
-
 			const challengeSocket = new WebSocket(
 				'ws://'
 				+ window.location.host
@@ -75,25 +60,58 @@
         	);
 
 
+			function redirectToBoard(e) {
+				let newSlug = e.id + "_" + "{{ currentUsername }}" + "_game";
+				"{% url 'board:createdGame' newSlug as createdGameUrl%}";
+				window.location.href=createdGameUrl;
+			};
+
+
 
 
 			challengeSocket.onmessage = function(e) {
 				const data = JSON.parse(e.data);
-				var newOption = document.createElement("option");
-				newOption.value = data.message;
-				newOption.text = data.message;
-				document.querySelector('#invitations').add(newOption);
+				if(data.messageType == 'challenge') {
+					var newOption = document.createElement('option');
+					newOption.value = data.message;
+					newOption.text = data.message;
+					document.querySelector('#invitations').add(newOption);
+				}
+				else {
+					var newOption = document.createElement('option');
+					newOption.value = data.message;
+					newOption.text = data.message;
+					document.querySelector('#current-games').add(newOption);
+				}
         	};
+
+
 
         	challengeSocket.onclose = function(e) {
             	console.error('Challenge socket closed unexpectedly');
         	};
 
-			document.querySelector('#opponent-submit').onclick = function(e) {
+
+
+			document.querySelector('#opponent-challenge').onclick = function(e) {
 				const messageInputDom = document.querySelector('#opponent-select');
 				let message = messageInputDom.options[messageInputDom.selectedIndex].value;
 				challengeSocket.send(JSON.stringify({
-					'message': message
+					'message': message,
+					'messageType': 'challenge'
+				}));
+				messageInputDom.value = '';
+        	};
+
+
+
+        	document.querySelector('#opponent-accept').onclick = function(e) {
+				const messageInputDom = document.querySelector('#invitations');
+				let message = messageInputDom.options[messageInputDom.selectedIndex].value;
+				challengeSocket.send(JSON.stringify({
+					'message': message,
+					'messageType': 'accept'
+
 				}));
 				messageInputDom.value = '';
         	};
