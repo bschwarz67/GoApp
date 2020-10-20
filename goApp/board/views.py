@@ -7,7 +7,7 @@ from django.urls import reverse
 from .models import Game
 
 
-def index(request):
+def index(request, gameIdSlug):
 	
 	context = {
 		'game' : Game.objects.get(pk=1),

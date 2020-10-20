@@ -35,7 +35,6 @@ class ChallengeConsumer(WebsocketConsumer):
         )
 
         if text_data_json['messageType'] == 'accept':
-            print("here")
             # Send accept message to both players involved
             async_to_sync(self.channel_layer.group_send)(
                 player_group,
@@ -67,20 +66,17 @@ class ChallengeConsumer(WebsocketConsumer):
 
     # Receive message from accepting player
     def accept_player(self, event):
-        print("here2")
         accepting_player = event['accepting_player']
         accepted_player = event['accepted_player']
         username = self.scope['user'].username
 
         if (username == accepted_player):
             # Send message to WebSocket
-            print("should be one here")
             self.send(text_data=json.dumps({
                 'message': accepting_player,
                 'messageType': 'accept'
             }))
         elif (username == accepting_player):
-            print("and one here")
             # Send message to WebSocket
             self.send(text_data=json.dumps({
                 'message': accepted_player,
