@@ -1,6 +1,7 @@
 import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
+from home.models import Player
 
 class ChallengeConsumer(WebsocketConsumer):
     def connect(self):
@@ -69,7 +70,9 @@ class ChallengeConsumer(WebsocketConsumer):
         accepting_player = event['accepting_player']
         accepted_player = event['accepted_player']
         username = self.scope['user'].username
-
+        Player.objects.get(username=accepting_player).opponents.add(Player.objects.get(username=accepted_player))
+        Player.objects.get(username=accepting_player).challengingPlayers.remove(Player.objects.get(username=accepted_player))
+        Player.objects.get(username=accepted_player).challengedPlayers.remove(Player.objects.get(username=accepting_player))
         if (username == accepted_player):
             # Send message to WebSocket
             self.send(text_data=json.dumps({
@@ -90,6 +93,8 @@ class ChallengeConsumer(WebsocketConsumer):
     def challenge_player(self, event):
         challenging_player = event['challenging_player']
         challenged_player = event['challenged_player']
+        Player.objects.get(username=challenging_player).challengedPlayers.add(Player.objects.get(username=challenged_player))
+        Player.objects.get(username=challenged_player).challengingPlayers.add(Player.objects.get(username=challenging_player))
         username = self.scope['user'].username
 
         if (username == challenged_player):
@@ -98,5 +103,6 @@ class ChallengeConsumer(WebsocketConsumer):
                 'message': challenging_player,
                 'messageType': 'challenge'
             }))
+
 
 

@@ -31,7 +31,7 @@
 
 
 		<select id="opponent-select" size="15">
-			{% for x in opponentOptions %}
+			{% for x in availablePlayers %}
 				<option value="{{ x.username }}">{{ x.username }}</option>
 			{% endfor %}
 		</select>
@@ -41,6 +41,9 @@
 		<br>
 
 		<select id="invitations" size="15">
+			{% for x in challengingPlayers %}
+				<option value="{{ x.username }}">{{ x.username }}</option>
+			{% endfor %}
 		</select>
 		<input id="opponent-accept" type="submit" value="Accept">
 
@@ -48,6 +51,9 @@
 		<br>
 
 		<select id="current-games" size="15">
+			{% for x in opponents %}
+				<option value="{{ x.username }}" onclick="redirectToBoard(e)">{{ x.username }}</option>
+			{% endfor %}
 		</select>
 
 		<script>
