@@ -18,11 +18,17 @@ def index(request):
 			timeSinceLastOutOfGameAction = timezone.now() - player.lastOutOfGameAction
 			if timeSinceLastOutOfGameAction.days < 1:
 				if timeSinceLastOutOfGameAction.seconds <= 1200 and not player.username == request.user and not player.color == request.user.color:
-					availablePlayers.append(player)
+					availablePlayers.append(player.username)
+		challengingPlayers = []
+		for player in request.user.challengingPlayers.all():
+			challengingPlayers.append(player.username)
+		opponents = []
+		for player in request.user.opponents.all():
+			opponents.append(player.username)
 		context = {
 			'availablePlayers': availablePlayers,
-			'challengingPlayers': request.user.challengingPlayers.all(),
-			'opponents': request.user.opponents.all(),
+			'challengingPlayers': challengingPlayers,
+			'opponents': opponents,
 		}
 		if 'error_message' in request.session:
 			context['error_message'] = request.session['error_message']
@@ -36,7 +42,7 @@ def index(request):
 			timeSinceLastOutOfGameAction = timezone.now() - player.lastOutOfGameAction
 			if timeSinceLastOutOfGameAction.days < 1:
 				if timeSinceLastOutOfGameAction.seconds <= 1200:
-					availablePlayers.append(player)
+					availablePlayers.append(player.username)
 		context = {
 			'availablePlayers': availablePlayers,
 		}

@@ -2,18 +2,28 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
-
-
 from .models import Game
+from home.models import Player
 
 
-def index(request, gameIdSlug):
-	
+def index(request, gameIdSlug=""):
+	#slugData = gameIdSlug.split("_")
+	#games = request.user.games.all()
+	"""
+	for game in games:
+		if Player.objects.get(username=slugData[0]) in game.player_set:
+			context = {
+				'game' : game,
+			}
+			return render(request, 'board:index', context)
+	"""
+	#return render(request, 'home/index.html')
 	context = {
-		'game' : Game.objects.get(pk=1),
+		'game': Game.objects.get(pk=1),
 	}
-	
-	return render(request, 'board/index.html', context) 
+	return render(request, 'board/index.html', context)
+
+
 
 
 def play(request):
@@ -31,4 +41,3 @@ def play(request):
 	
 	else:
 		return HttpResponseRedirect(reverse('board:index'))
-	
