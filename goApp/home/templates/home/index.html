@@ -32,7 +32,7 @@
 
 		<select id="opponent-select" size="15">
 			{% for x in availablePlayers %}
-				<option value="{{ x.username }}">{{ x.username }}</option>
+				<option value="{{ x }}">{{ x }}</option>
 			{% endfor %}
 		</select>
 		<input id="opponent-challenge" type="submit" value="Challenge">
@@ -42,7 +42,7 @@
 
 		<select id="invitations" size="15">
 			{% for x in challengingPlayers %}
-				<option value="{{ x.username }}">{{ x.username }}</option>
+				<option value="{{ x }}">{{ x }}</option>
 			{% endfor %}
 		</select>
 		<input id="opponent-accept" type="submit" value="Accept">
@@ -52,7 +52,7 @@
 
 		<select id="current-games" size="15">
 			{% for x in opponents %}
-				<option value="{{ x.username }}" onclick="redirectToBoard(e)">{{ x.username }}</option>
+				<option onclick="redirectToBoard(this)" value="{{ x }}" id="{{ x }}">{{ x }}</option>
 			{% endfor %}
 		</select>
 
@@ -64,10 +64,10 @@
 				+ '/ws/challenge/'
         	);
 
-			function redirectToBoard(e) {
-				let newSlug = e.id + "_" + "{{ user.username }}" + "_game";
-				let createdGameUrl = "{% url 'board:createdGame' newSlug%}";
-				window.location.href=createdGameUrl;
+			function redirectToBoard(event) {
+				let gameIdSlug = event.value +  "_game/";
+				window.location.href= "/board/" + gameIdSlug;
+
 			};
 
 
@@ -85,7 +85,7 @@
 					newOption.value = data.message;
 					newOption.text = data.message;
 					newOption.id = data.message;
-					newOption.onclick = function(){redirectToBoard(e)};
+					newOption.onclick = function(){redirectToBoard(this)};
 					var deletedOption = document.querySelector('#invitations').options.namedItem(data.message);
 					if(deletedOption != null) {
 						document.querySelector('#invitations').options.remove(deletedOption.index);
