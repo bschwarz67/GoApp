@@ -42,7 +42,7 @@
 
 		<select id="invitations" size="15">
 			{% for x in challengingPlayers %}
-				<option value="{{ x }}">{{ x }}</option>
+				<option value="{{ x }}" id="{{ x }}">{{ x }}</option>
 			{% endfor %}
 		</select>
 		<input id="opponent-accept" type="submit" value="Accept">
@@ -52,9 +52,17 @@
 
 		<select id="current-games" size="15">
 			{% for x in opponents %}
-				<option onclick="redirectToBoard(this)" value="{{ x }}" id="{{ x }}">{{ x }}</option>
+				<option onclick="redirectToBoard(this)" value="{{ x }}">{{ x }}</option>
 			{% endfor %}
 		</select>
+
+
+		{{ challengedPlayers|json_script:"challengedPlayersList" }}
+		<script id="challengedPlayersList"></script>
+
+		{{ opponents|json_script:"opponentsList" }}
+		<script id="opponentsList"></script>
+
 
 		<script>
 			{% if user.is_authenticated %}
@@ -84,7 +92,6 @@
 					var newOption = document.createElement('option');
 					newOption.value = data.message;
 					newOption.text = data.message;
-					newOption.id = data.message;
 					newOption.onclick = function(){redirectToBoard(this)};
 					var deletedOption = document.querySelector('#invitations').options.namedItem(data.message);
 					if(deletedOption != null) {
@@ -98,23 +105,42 @@
             	console.error('Challenge socket closed unexpectedly');
         	};
 
+
+
+
 			document.querySelector('#opponent-challenge').onclick = function(e) {
+				let challengedPlayers = JSON.parse(document.getElementById('challengedPlayersList').textContent);
+				let opponents = JSON.parse(document.getElementById('opponentsList').textContent);
 				const messageInputDom = document.querySelector('#opponent-select');
-				const message = messageInputDom.options[messageInputDom.selectedIndex].value;
-				challengeSocket.send(JSON.stringify({
-					'message': message,
-					'messageType': 'challenge'
-				}));
-				messageInputDom.value = '';
-        	};
+				const playerToChallenge = messageInputDom.options[messageInputDom.selectedIndex].value;
+
+				if(!challengedPlayers.includes(playerToChallenge) && !opponents.includes(playerToChallenge)) {
+					challengedPlayers.push(playerToChallenge);
+
+					document.getElementById('challengedPlayersList').textContent = JSON.stringify(challengedPlayers);
+
+					challengeSocket.send(JSON.stringify({
+						'message': playerToChallenge,
+						'messageType': 'challenge'
+					}));
+					messageInputDom.value = '';
+					//document.write('Challenged players: ' + document.getElementById('challengedPlayersList').innerHTML);
+				}
+
+
+			};
 
 
 
         	document.querySelector('#opponent-accept').onclick = function(e) {
-				const messageInputDom = document.querySelector('#invitations');
-				const message = messageInputDom.options[messageInputDom.selectedIndex].value;
+        		let opponents = JSON.parse(document.getElementById('opponentsList').textContent);
+    			const messageInputDom = document.querySelector('#invitations');
+				const playerToAccept = messageInputDom.options[messageInputDom.selectedIndex].value;
+
+				opponents.push(playerToAccept);
+				document.getElementById('opponentsList').textContent = JSON.stringify(opponents);
 				challengeSocket.send(JSON.stringify({
-					'message': message,
+					'message': playerToAccept,
 					'messageType': 'accept'
 
 				}));

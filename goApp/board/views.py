@@ -7,21 +7,22 @@ from home.models import Player
 
 
 def index(request, gameIdSlug=""):
-	#slugData = gameIdSlug.split("_")
-	#games = request.user.games.all()
-	"""
+	slugData = gameIdSlug.split("_")
+	games = request.user.games.all()
+
 	for game in games:
-		if Player.objects.get(username=slugData[0]) in game.player_set:
+		if Player.objects.get(username=slugData[0]) in game.player_set.all():
 			context = {
 				'game' : game,
 			}
-			return render(request, 'board:index', context)
-	"""
-	#return render(request, 'home/index.html')
+			return render(request, 'board/index.html', context)
+
+	#return render(request, 'home/index.html') with error message if the game the player wants isnt found
+
 	context = {
-		'game': Game.objects.get(pk=1),
+		'error_message': "Game not found, please choose another player",
 	}
-	return render(request, 'board/index.html', context)
+	return render(request, 'home/index.html', context)
 
 
 

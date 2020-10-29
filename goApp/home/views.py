@@ -1,7 +1,7 @@
 #TODO:  need to check and see if cookies are allowed somewhere,
 #create list for Player objects of previous aliases, allow switching.
 #figure out how to save every time user does out of game action, think changePlayerColor and the challenges
-
+#make it so user cant change the username
 from django.contrib.auth import login
 from django.utils import timezone
 from django.http import HttpResponse, HttpResponseRedirect
@@ -19,14 +19,19 @@ def index(request):
 			if timeSinceLastOutOfGameAction.days < 1:
 				if timeSinceLastOutOfGameAction.seconds <= 1200 and not player.username == request.user and not player.color == request.user.color:
 					availablePlayers.append(player.username)
+		challengedPlayers = []
+		for player in request.user.challengedPlayers.all():
+			challengedPlayers.append(player.username)
 		challengingPlayers = []
 		for player in request.user.challengingPlayers.all():
 			challengingPlayers.append(player.username)
 		opponents = []
 		for player in request.user.opponents.all():
 			opponents.append(player.username)
+			print(player.username)
 		context = {
 			'availablePlayers': availablePlayers,
+			'challengedPlayers': challengedPlayers,
 			'challengingPlayers': challengingPlayers,
 			'opponents': opponents,
 		}

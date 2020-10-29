@@ -14,6 +14,7 @@ class ChallengeConsumer(WebsocketConsumer):
             self.channel_name
         )
         self.accept()
+        print("joined group of self")
 
     def disconnect(self, close_code):
         # Leave challenge player group
@@ -25,11 +26,11 @@ class ChallengeConsumer(WebsocketConsumer):
 
 
     def receive(self, text_data):
+        print("received data")
         text_data_json = json.loads(text_data)
         acting_player = self.scope['user'].username
         player_group = text_data_json['message']
         player_group += "_group"
-
         #connect to player group
         async_to_sync(self.channel_layer.group_add)(
             player_group,
@@ -38,12 +39,15 @@ class ChallengeConsumer(WebsocketConsumer):
 
         if text_data_json['messageType'] == 'accept':
             # Send accept message to both players involved
+            newGame = Game()
+            newGame.save()
             async_to_sync(self.channel_layer.group_send)(
                 player_group,
                 {
                     'type': 'accept_player',
                     'accepting_player': acting_player,
-                    'accepted_player': text_data_json['message']
+                    'accepted_player': text_data_json['message'],
+                    'new_game_id': newGame.id
                 }
             )
         else:
@@ -70,14 +74,13 @@ class ChallengeConsumer(WebsocketConsumer):
     def accept_player(self, event):
         accepting_player = event['accepting_player']
         accepted_player = event['accepted_player']
+        new_game_id = event['new_game_id']
         username = self.scope['user'].username
-        newGame = Game()
-        newGame.save()
 
         if (username == accepted_player):
             # Send message to WebSocket
             Player.objects.get(username=accepted_player).challengedPlayers.remove(Player.objects.get(username=accepting_player))
-            Player.objects.get(username=accepted_player).games.add(newGame)
+            Player.objects.get(username=accepted_player).games.add(Game.objects.get(id=new_game_id))
             self.send(text_data=json.dumps({
                 'message': accepting_player,
                 'messageType': 'accept'
@@ -86,7 +89,7 @@ class ChallengeConsumer(WebsocketConsumer):
             # Send message to WebSocket
             Player.objects.get(username=accepting_player).opponents.add(Player.objects.get(username=accepted_player))
             Player.objects.get(username=accepting_player).challengingPlayers.remove(Player.objects.get(username=accepted_player))
-            Player.objects.get(username=accepting_player).games.add(newGame)
+            Player.objects.get(username=accepting_player).games.add(Game.objects.get(id=new_game_id))
             self.send(text_data=json.dumps({
                 'message': accepted_player,
                 'messageType': 'accept'
