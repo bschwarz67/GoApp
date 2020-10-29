@@ -14,7 +14,6 @@ class ChallengeConsumer(WebsocketConsumer):
             self.channel_name
         )
         self.accept()
-        print("joined group of self")
 
     def disconnect(self, close_code):
         # Leave challenge player group
@@ -26,7 +25,6 @@ class ChallengeConsumer(WebsocketConsumer):
 
 
     def receive(self, text_data):
-        print("received data")
         text_data_json = json.loads(text_data)
         acting_player = self.scope['user'].username
         player_group = text_data_json['message']

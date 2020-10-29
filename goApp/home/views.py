@@ -2,6 +2,12 @@
 #create list for Player objects of previous aliases, allow switching.
 #figure out how to save every time user does out of game action, think changePlayerColor and the challenges
 #make it so user cant change the username
+
+#for views.index.html, could there be a bette rway to keep track of currently challenged players and opponents for preventing
+#more than on challenge?
+
+#can you challengers players when theyre not in home.index in their browser?
+
 from django.contrib.auth import login
 from django.utils import timezone
 from django.http import HttpResponse, HttpResponseRedirect
@@ -28,7 +34,6 @@ def index(request):
 		opponents = []
 		for player in request.user.opponents.all():
 			opponents.append(player.username)
-			print(player.username)
 		context = {
 			'availablePlayers': availablePlayers,
 			'challengedPlayers': challengedPlayers,

@@ -116,7 +116,6 @@
 
 				if(!challengedPlayers.includes(playerToChallenge) && !opponents.includes(playerToChallenge)) {
 					challengedPlayers.push(playerToChallenge);
-
 					document.getElementById('challengedPlayersList').textContent = JSON.stringify(challengedPlayers);
 
 					challengeSocket.send(JSON.stringify({
@@ -124,7 +123,6 @@
 						'messageType': 'challenge'
 					}));
 					messageInputDom.value = '';
-					//document.write('Challenged players: ' + document.getElementById('challengedPlayersList').innerHTML);
 				}
 
 
