@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import include, path
-
+##
 
 urlpatterns = [
 	path('board/', include('board.urls', namespace='board')),
