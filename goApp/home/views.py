@@ -1,7 +1,6 @@
 #TODO:  need to check and see if cookies are allowed somewhere,
 #create list for Player objects of previous aliases, allow switching.
 #figure out how to save every time user does out of game action, think changePlayerColor and the challenges
-#make it so user cant change the username
 
 #for views.index.html, could there be a bette rway to keep track of currently challenged players and opponents for preventing
 #more than on challenge?
@@ -19,26 +18,49 @@ from .models import Player
 
 def index(request):
 	if request.user.is_authenticated:
+		
 		availablePlayers = []
+		challengedPlayers = []
+		challengingPlayers = []
+		opponents = []
+		opponentObjects = []
+		ids = []
+
 		for player in Player.objects.all():
 			timeSinceLastOutOfGameAction = timezone.now() - player.lastOutOfGameAction
 			if timeSinceLastOutOfGameAction.days < 1:
 				if timeSinceLastOutOfGameAction.seconds <= 1200 and not player.username == request.user and not player.color == request.user.color:
 					availablePlayers.append(player.username)
-		challengedPlayers = []
-		for player in request.user.challengedPlayers.all():
-			challengedPlayers.append(player.username)
-		challengingPlayers = []
-		for player in request.user.challengingPlayers.all():
-			challengingPlayers.append(player.username)
-		opponents = []
-		for player in request.user.opponents.all():
-			opponents.append(player.username)
+		
+		
+		for x in Player.objects.all():
+			ids.append(x.id)
+
+		for x in request.user.challengedPlayers.all():
+			challengedPlayers.append(x.username)
+		
+		for x in request.user.challengingPlayers.all():
+			challengingPlayers.append(x.username)
+
+		for x in request.user.opponents.all():
+			opponents.append(x.username)
+		
+		for x in request.user.games.all():
+			opponent = {}
+			if(request.user.username == x.playerOne):
+				opponent['value'] = x.playerTwo
+			else:
+				opponent['value'] = x.playerOne
+			opponent['gameId'] = x.id
+			opponentObjects.append(opponent)
+		
 		context = {
 			'availablePlayers': availablePlayers,
 			'challengedPlayers': challengedPlayers,
 			'challengingPlayers': challengingPlayers,
+			'opponentObjects': opponentObjects,
 			'opponents': opponents,
+			'ids': ids,
 		}
 		if 'error_message' in request.session:
 			context['error_message'] = request.session['error_message']
@@ -80,7 +102,7 @@ def createTempPlayer(request):
 	else:
 		if(request.user.is_authenticated):
 			updatedPlayer = Player.objects.get(username=request.user)
-			updatedPlayer.username = request.POST['name']
+			#updatedPlayer.username = request.POST['name']
 			updatedPlayer.save()
 			return HttpResponseRedirect(reverse('home:index'))
 		else:

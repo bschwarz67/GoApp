@@ -38,6 +38,8 @@ class ChallengeConsumer(WebsocketConsumer):
         if text_data_json['messageType'] == 'accept':
             # Send accept message to both players involved
             newGame = Game()
+            newGame.playerOne = acting_player
+            newGame.playerTwo = text_data_json['message']
             newGame.save()
             async_to_sync(self.channel_layer.group_send)(
                 player_group,
@@ -81,7 +83,8 @@ class ChallengeConsumer(WebsocketConsumer):
             Player.objects.get(username=accepted_player).games.add(Game.objects.get(id=new_game_id))
             self.send(text_data=json.dumps({
                 'message': accepting_player,
-                'messageType': 'accept'
+                'messageType': 'accept',
+                'gameId': new_game_id
             }))
         elif (username == accepting_player):
             # Send message to WebSocket
@@ -90,7 +93,8 @@ class ChallengeConsumer(WebsocketConsumer):
             Player.objects.get(username=accepting_player).games.add(Game.objects.get(id=new_game_id))
             self.send(text_data=json.dumps({
                 'message': accepted_player,
-                'messageType': 'accept'
+                'messageType': 'accept',
+                'gameId': new_game_id
             }))
         else:
             pass

@@ -11,7 +11,7 @@ def index(request, gameIdSlug=""):
 	games = request.user.games.all()
 
 	for game in games:
-		if Player.objects.get(username=slugData[0]) in game.player_set.all():
+		if Player.objects.get(username=slugData[1]) in game.player_set.all():
 			context = {
 				'game' : game,
 			}
