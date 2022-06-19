@@ -1,7 +1,6 @@
 #TODO need to put in username for create
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from board.models import Game
 
 
 
@@ -13,4 +12,3 @@ class Player(AbstractUser):
     opponents = models.ManyToManyField('self')
     challengedPlayers = models.ManyToManyField('self', related_name="+")
     challengingPlayers = models.ManyToManyField('self', related_name="+")
-    games = models.ManyToManyField(Game)

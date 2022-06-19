@@ -18,6 +18,7 @@
 			<input type="submit" value="Create Temporary Player">
 		</form>
 
+		<!-- 
 		<form action="{% url 'home:changePlayerColor' %}"  method="post">
 			{% csrf_token %}
 			Please select your color:
@@ -27,7 +28,8 @@
 			<label for="black">Black</label><br>
 			<input type="submit" value="Pick Color">
 		</form>
-
+		-->
+		
 		<select id="opponent-select" size="15">
 			{% for x in availablePlayers %}
 				<option value="{{ x }}">{{ x }}</option>
@@ -68,6 +70,9 @@
 		{{ ids|json_script:"idsList" }}
 		<script id="idsList"></script>
 
+		{{ user.color|json_script:"color" }}
+		<script id="color"></script>
+
 
 		<script>
 			{% if user.is_authenticated %}
@@ -77,6 +82,12 @@
 			if (perfEntries[0].type === "back_forward") {
     			location.reload(true);
 			}
+
+
+
+			//pulls player color into javascript
+			let playerColor = JSON.parse(document.getElementById('color').textContent);
+
 
 			const challengeSocket = new WebSocket(
 				'ws://'
@@ -122,7 +133,7 @@
 
 
 
-
+			//TODO: write in handler for when no player is selected to challenge
 
 			document.querySelector('#opponent-challenge').onclick = function(e) {
 				let challengedPlayers = JSON.parse(document.getElementById('challengedPlayersList').textContent);
@@ -148,6 +159,7 @@
 			};
 
 
+			//TODO write in handler for when no player is selected to accept
 
         	document.querySelector('#opponent-accept').onclick = function(e) {
         		let opponents = JSON.parse(document.getElementById('opponentsList').textContent);

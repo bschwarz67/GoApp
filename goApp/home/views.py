@@ -13,12 +13,12 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from .models import Player
+from board.models import Game
 
 
 
 def index(request):
 	if request.user.is_authenticated:
-		
 		availablePlayers = []
 		challengedPlayers = []
 		challengingPlayers = []
@@ -29,7 +29,7 @@ def index(request):
 		for player in Player.objects.all():
 			timeSinceLastOutOfGameAction = timezone.now() - player.lastOutOfGameAction
 			if timeSinceLastOutOfGameAction.days < 1:
-				if timeSinceLastOutOfGameAction.seconds <= 1200 and not player.username == request.user and not player.color == request.user.color:
+				if timeSinceLastOutOfGameAction.seconds <= 1200 and not player.username == request.user.username:
 					availablePlayers.append(player.username)
 		
 		
@@ -45,14 +45,15 @@ def index(request):
 		for x in request.user.opponents.all():
 			opponents.append(x.username)
 		
-		for x in request.user.games.all():
+		for x in Game.objects.all():
 			opponent = {}
-			if(request.user.username == x.playerOne):
-				opponent['value'] = x.playerTwo
-			else:
-				opponent['value'] = x.playerOne
-			opponent['gameId'] = x.id
-			opponentObjects.append(opponent)
+			if request.user.username == x.whitePlayer.username or request.user.username == x.blackPlayer.username:
+				if(request.user.username == x.whitePlayer.username):
+					opponent['value'] = x.blackPlayer.username
+				else:
+					opponent['value'] = x.whitePlayer.username
+				opponent['gameId'] = x.id
+				opponentObjects.append(opponent)
 		
 		context = {
 			'availablePlayers': availablePlayers,
