@@ -70,8 +70,8 @@
 			{% for x in game.piecePositions|split %}
 				
 				<div>	
-					<input type="radio" name="coordinate" value="{{ forloop.counter }}" id="coordinate{{ forloop.counter }}">
-					<label for="coordinate{{ forloop.counter }}" id="coordinate{{ forloop.counter }}"></label>
+					<input type="radio" name="coordinate" value="{{ forloop.counter }}" id="coordinate_{{ forloop.counter }}">
+					<label for="coordinate_{{ forloop.counter }}" id="coordinate_{{ forloop.counter }}"></label>
 				</div>
 
 			{% endfor %}
@@ -89,10 +89,41 @@
 			{% endfor %}
 		</div>
 
+
+
+		<h1>{{ request.path }}</h1>
+
+
+		{{ game|json_script:"viewsGame" }}
+		<script id="viewsGame"></script>
+
+		
+		
 		<script>
 
+			const playSocket = new WebSocket(
+				'ws://'
+				+ window.location.host
+				+ '/ws/play/'
+			);
+
+			//pulls game into javascript
+			let game = JSON.parse(document.getElementById('viewsGame').textContent);
+
+			
+
+
+			playSocket.onmessage = function(e) {
+				const data = JSON.parse(e.data);
+			};
+
+			playSocket.onclose = function(e) {
+				console.error('Chat socket closed unexpectedly');
+
+			}	
+
+
 			document.querySelector("#Play").onclick = function(e) {
-				//let played = document.querySelector('radio[name="coordinate"]:checked');
 				let playedInput = document.querySelector('input[name="coordinate"]:checked');
 				let playedLabel = document.querySelector(`label[for=${playedInput.id}]`);
 				console.log(playedLabel.id);
@@ -101,6 +132,27 @@
 
 				playedLabel.style.backgroundColor = "#bfb";
 				playedLabel.style.borderColor = "#4c4";
+
+
+
+				if(game.whitePlayer == game.playerInScope) {
+					playSocket.send(JSON.stringify({
+					'playedAgainst': game.blackPlayer,
+					'messageType': 'play',
+					'coordinate': playedLabel.id.split("_")[1]
+
+					}));
+				}
+				else {
+					playSocket.send(JSON.stringify({
+					'playedAgainst': game.whitePlayer,
+					'messageType': 'play',
+					'coordinate': playedLabel.id.split("_")[1]
+
+					}));
+				}
+
+				
 
         	};
 

@@ -8,11 +8,9 @@ from home.models import Player
 
 def index(request, gameIdSlug=""):
 	slugData = gameIdSlug.split("_")
-
-
 	try:
-		game = Game.objects.get(id=int(slugData[0]))
-		
+		gameInstance = Game.objects.get(id=int(slugData[0]))
+	
 	except:
 		#return render(request, 'home/index.html') with error message if the game the player wants isnt found
 		context = {
@@ -20,6 +18,12 @@ def index(request, gameIdSlug=""):
 		}
 		return render(request, 'home/index.html', context)
 	else:
+		game = {}
+		game['whitePlayer'] = gameInstance.whitePlayer.username
+		game['blackPlayer'] = gameInstance.blackPlayer.username
+		game['movingPlayer'] = gameInstance.movingPlayer.username
+		game['playerInScope'] = request.user.username
+		game['piecePositions'] = gameInstance.piecePositions
 		context = {
 			'game' : game,
 		}
