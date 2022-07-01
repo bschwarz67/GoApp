@@ -24,6 +24,7 @@ def index(request, gameIdSlug=""):
 		game['movingPlayer'] = gameInstance.movingPlayer.username
 		game['playerInScope'] = request.user.username
 		game['piecePositions'] = gameInstance.piecePositions
+		game['id'] = gameInstance.id
 		context = {
 			'game' : game,
 		}

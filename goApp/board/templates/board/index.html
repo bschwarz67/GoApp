@@ -115,6 +115,20 @@
 
 			playSocket.onmessage = function(e) {
 				const data = JSON.parse(e.data);
+				console.log("here");
+				if(data.messageType == 'play') {
+
+					let playedLabel = document.querySelector(`label[for=coordinate_${data.coordinatePlayed}]`);
+					console.log(playedLabel.id);
+					
+
+					playedLabel.style.backgroundColor = "#bfb";
+					playedLabel.style.borderColor = "#4c4";
+
+				}
+				else {
+					console.log("error handling to come :)")
+				}
 			};
 
 			playSocket.onclose = function(e) {
@@ -126,7 +140,6 @@
 			document.querySelector("#Play").onclick = function(e) {
 				let playedInput = document.querySelector('input[name="coordinate"]:checked');
 				let playedLabel = document.querySelector(`label[for=${playedInput.id}]`);
-				console.log(playedLabel.id);
 				
 				
 
@@ -134,12 +147,12 @@
 				playedLabel.style.borderColor = "#4c4";
 
 
-
 				if(game.whitePlayer == game.playerInScope) {
 					playSocket.send(JSON.stringify({
 					'playedAgainst': game.blackPlayer,
 					'messageType': 'play',
-					'coordinate': playedLabel.id.split("_")[1]
+					'coordinate': playedLabel.id.split("_")[1],
+					'gameID': game.id
 
 					}));
 				}
@@ -147,7 +160,8 @@
 					playSocket.send(JSON.stringify({
 					'playedAgainst': game.whitePlayer,
 					'messageType': 'play',
-					'coordinate': playedLabel.id.split("_")[1]
+					'coordinate': playedLabel.id.split("_")[1],
+					'gameID': game.id
 
 					}));
 				}
