@@ -37,7 +37,6 @@
 				display: inline-block;
 			}
 			
-
 			
 			.piece-container input[type="radio"]:checked + label {
 				background-color:#bfb;
@@ -59,6 +58,18 @@
 				left: 22px;
 				z-index: 1;
 			}
+
+			#submit-container {
+				width: 80px;
+				height: 40px;
+			}
+
+
+			#Play {
+				width: 80px;
+				height: 20px;
+			}
+
 		{% endblock %}
 		</style>
 	</head>
@@ -75,9 +86,11 @@
 				</div>
 
 			{% endfor %}
+			<div id="submit-container">
+				<div id="submit-error"></div>
+				<input type="button" value="Play" id="Play">
+			</div>
 			
-
-			<input type="button" value="Play" id="Play">
 		</form>
 		
 		<div class="tile-container">
@@ -115,19 +128,38 @@
 
 			playSocket.onmessage = function(e) {
 				const data = JSON.parse(e.data);
-				console.log("here");
-				if(data.messageType == 'play') {
+				if(data.messageType == 'playedAgainstOpponent') {
 
 					let playedLabel = document.querySelector(`label[for=coordinate_${data.coordinatePlayed}]`);
-					console.log(playedLabel.id);
-					
-
 					playedLabel.style.backgroundColor = "#bfb";
 					playedLabel.style.borderColor = "#4c4";
 
 				}
+
+				else if(data.messageType == 'played') {
+
+					let playedLabel = document.querySelector(`label[for=coordinate_${data.coordinatePlayed}]`);
+					playedLabel.style.backgroundColor = "#bfb";
+					playedLabel.style.borderColor = "#4c4";
+
+				}
+
+
 				else {
-					console.log("error handling to come :)")
+
+					let errorNode = document.createElement("div");
+					errorNode.style.width = "160px";
+					errorNode.style.height = "20px";
+					errorNode.textContent = "sorry thats in invalid move";
+					errorNode.style.color = "red";
+					document.querySelector("#submit-container").insertBefore(errorNode, document.querySelector("#Play"));
+				
+					
+					window.setTimeout(function() {
+      					errorNode.parentNode.removeChild(errorNode);
+      					
+    				}, 2000);
+
 				}
 			};
 
@@ -143,8 +175,6 @@
 				
 				
 
-				playedLabel.style.backgroundColor = "#bfb";
-				playedLabel.style.borderColor = "#4c4";
 
 
 				if(game.whitePlayer == game.playerInScope) {
