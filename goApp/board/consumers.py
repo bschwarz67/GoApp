@@ -11,77 +11,70 @@ import checkPosition
 
 class PlayConsumer(WebsocketConsumer):
     def connect(self):
-        self.player_name = self.scope['user']
-        self.player_group = '%s_group' % self.player_name
+        self.player_group = '%s_group' % self.scope['path'].split('/')[3]
+        print(' joined player group %s_group' % self.scope['path'].split('/')[3])
         # Join player group
         async_to_sync(self.channel_layer.group_add)(
             self.player_group,
             self.channel_name
         )
         self.accept()
+        
 
 
 
     def disconnect(self, close_code):
-        # Leave challenge player group
+        #Leave challenge player group
         async_to_sync(self.channel_layer.group_discard)(
             self.player_group,
             self.channel_name
         )
+    
+    def send_play(self):
+        pass
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
 
-        player_name = text_data_json['playedAgainst']
-        player_group = '%s_group' % player_name
-        
-        
 
         if Game.objects.get(id=int(text_data_json['gameID'])).movingPlayer.username == self.scope['user'].username and Game.objects.get(id=int(text_data_json['gameID'])).piecePositions[int(text_data_json['coordinate'])] == '0':
 
-
-            # Join player group
-            async_to_sync(self.channel_layer.group_add)(
-                player_group,
-                self.channel_name
-            )
-
-            try:
-
-                async_to_sync(self.channel_layer.group_send)(
-                        player_group,
-                        {
-                            'type': 'play',
-                            'played_against': text_data_json['playedAgainst'],
-                            'game_id': text_data_json['gameID'],
-                            'coordinate': text_data_json['coordinate']
-                        }
-                )
-
-                async_to_sync(self.channel_layer.group_discard)(
-                    player_group,
-                    self.channel_name
-                )
-
-
-            except ValueError:
-
-                async_to_sync(self.channel_layer.group_discard)(
-                    player_group,
-                    self.channel_name
-                )
-
-                async_to_sync(self.channel_layer.group_send)(
-                        self.player_group,
-                        {
-                            'type': 'play',
-                            'played_against': text_data_json['playedAgainst'],
-                            'game_id': text_data_json['gameID'],
-                            'coordinate': text_data_json['coordinate']
-                        }
-                )
+            if self.scope['user'].username == Game.objects.get(id=int(text_data_json['gameID'])).whitePlayer.username:
+                game = Game.objects.get(id=int(text_data_json['gameID']))
+                print(game.piecePositions)
+                game.piecePositions = Game.objects.get(id=int(text_data_json['gameID'])).piecePositions[:int(text_data_json['coordinate'])] + '1' + Game.objects.get(id=int(text_data_json['gameID'])).piecePositions[int(text_data_json['coordinate']) + 1:]
+                game.save()
+                print(game.piecePositions)
                 
 
+                checker = checkPosition.Check('2211111111110000000000000000000000000000000000000', 2, '1')
+                checker.checkPlayValidity()
+                #checker = checkPosition.Check('2211111111110000000000000000000000000000000000000', int(text_data_json['coordinate']), '1')
+                #checker.checkPlayValidity()
+            
+            else:
+                game = Game.objects.get(id=int(text_data_json['gameID']))
+                print(game.piecePositions)
+                game.piecePositions = Game.objects.get(id=int(text_data_json['gameID'])).piecePositions[:int(text_data_json['coordinate'])] + '2' + Game.objects.get(id=int(text_data_json['gameID'])).piecePositions[int(text_data_json['coordinate']) + 1:]
+                game.save()
+                print(game.piecePositions)
+
+                checker = checkPosition.Check('2211111111110000000000000000000000000000000000000', 2, '2')
+                checker.checkPlayValidity()
+                #checker = checkPosition.Check('2211111111110000000000000000000000000000000000000', int(text_data_json['coordinate']), '2')
+                #checker.checkPlayValidity()
+
+
+            
+            async_to_sync(self.channel_layer.group_send)(
+                self.player_group,
+                {
+                    'type': 'play',
+                    'played_against': text_data_json['playedAgainst'],
+                    'game_id': text_data_json['gameID'],
+                    'coordinate': text_data_json['coordinate']
+                }
+            )
 
 
 
@@ -100,25 +93,33 @@ class PlayConsumer(WebsocketConsumer):
 
             
 
-
+    #add conditions so that only message will be returned if its one of the two playsers in the game, in the instance of multiple 
+    #games with >2 players this could get messy
     def play(self, event):
 
-        checker = checkPosition.Check()
-        checker.checkPlayValidity()
-
+        
+        print("send back to sockets")
         if event['played_against'] == self.scope['user'].username:
-            self.send(text_data=json.dumps({
-                'coordinatePlayed': event['coordinate'],
-                'messageType': 'playedAgainstOpponent',
-                'playedAgainst': event['played_against']
-            }))
+            
+            try:
+                print('send to socket1')
+                self.send(text_data=json.dumps({
+                    'coordinatePlayed': event['coordinate'],
+                    'messageType': 'playedAgainstOpponent',
+                    'playedAgainst': event['played_against']
+                }))
+            except:
+                print('err')
         else:
-            self.send(text_data=json.dumps({
-                'coordinatePlayed': event['coordinate'],
-                'messageType': 'played',
-                'playedAgainst': event['played_against']
-            }))
-
+            try:
+                print('send to socket2')
+                self.send(text_data=json.dumps({
+                    'coordinatePlayed': event['coordinate'],
+                    'messageType': 'played',
+                    'playedAgainst': event['played_against']
+                }))
+            except:
+                print('err')
         print(event['played_against'])
         
 

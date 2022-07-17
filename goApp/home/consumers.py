@@ -6,6 +6,7 @@ from board.models import Game
 
 class ChallengeConsumer(WebsocketConsumer):
     def connect(self):
+
         self.player_name = self.scope['user']
         self.player_group = '%s_group' % self.player_name
         # Join player group
@@ -25,6 +26,7 @@ class ChallengeConsumer(WebsocketConsumer):
 
 
     def receive(self, text_data):
+
         text_data_json = json.loads(text_data)
         acting_player = self.scope['user'].username
         player_group = text_data_json['message']
@@ -42,6 +44,10 @@ class ChallengeConsumer(WebsocketConsumer):
             newGame.blackPlayer = Player.objects.get(username=text_data_json['message'])
             newGame.movingPlayer = Player.objects.get(username=acting_player)
             newGame.save()
+            Player.objects.get(username=text_data_json['message']).challengedPlayers.remove(Player.objects.get(username=acting_player))
+            Player.objects.get(username=text_data_json['message']).opponents.add(Player.objects.get(username=acting_player))
+            Player.objects.get(username=acting_player).opponents.add(Player.objects.get(username=text_data_json['message']))
+            Player.objects.get(username=acting_player).challengingPlayers.remove(Player.objects.get(username=text_data_json['message']))
             async_to_sync(self.channel_layer.group_send)(
                 player_group,
                 {
@@ -52,6 +58,10 @@ class ChallengeConsumer(WebsocketConsumer):
                 }
             )
         else:
+            
+            Player.objects.get(username=text_data_json['message']).challengingPlayers.add(Player.objects.get(username=acting_player))
+            Player.objects.get(username=acting_player).challengedPlayers.add(Player.objects.get(username=text_data_json['message']))
+            
             # Send challenge message to challenged player
             async_to_sync(self.channel_layer.group_send)(
                 player_group,
@@ -80,7 +90,6 @@ class ChallengeConsumer(WebsocketConsumer):
 
         if (username == accepted_player):
             # Send message to WebSocket
-            Player.objects.get(username=accepted_player).challengedPlayers.remove(Player.objects.get(username=accepting_player))
             self.send(text_data=json.dumps({
                 'message': accepting_player,
                 'messageType': 'accept',
@@ -88,8 +97,6 @@ class ChallengeConsumer(WebsocketConsumer):
             }))
         elif (username == accepting_player):
             # Send message to WebSocket
-            Player.objects.get(username=accepting_player).opponents.add(Player.objects.get(username=accepted_player))
-            Player.objects.get(username=accepting_player).challengingPlayers.remove(Player.objects.get(username=accepted_player))
             self.send(text_data=json.dumps({
                 'message': accepted_player,
                 'messageType': 'accept',
@@ -98,6 +105,9 @@ class ChallengeConsumer(WebsocketConsumer):
         else:
             pass
 
+    
+    #todo for tomorow, figure out why challing/accept functionality breaks down after realoading home app
+    #
 
     # Receive message from challenging player
     def challenge_player(self, event):
@@ -107,13 +117,11 @@ class ChallengeConsumer(WebsocketConsumer):
 
         if (username == challenged_player):
             # Send message to WebSocket
-            Player.objects.get(username=challenged_player).challengingPlayers.add(Player.objects.get(username=challenging_player))
             self.send(text_data=json.dumps({
                 'message': challenging_player,
                 'messageType': 'challenge'
             }))
-        else:
-            Player.objects.get(username=challenging_player).challengedPlayers.add(Player.objects.get(username=challenged_player))
+        
 
 
 

@@ -9,6 +9,6 @@ class Player(AbstractUser):
     color = models.BooleanField(default=True)	#TRUE = white, FALSE = BLACK
     turn = models.BooleanField(default=True) #TRUE = the players turn, FALSE = not the players turn
     lastOutOfGameAction = models.DateTimeField(auto_now=True)
-    opponents = models.ManyToManyField('self')
-    challengedPlayers = models.ManyToManyField('self', related_name="+")
-    challengingPlayers = models.ManyToManyField('self', related_name="+")
+    opponents = models.ManyToManyField('self', symmetrical=False, related_name="+")
+    challengedPlayers = models.ManyToManyField('self', symmetrical=False, related_name="+")
+    challengingPlayers = models.ManyToManyField('self', symmetrical=False, related_name="+")

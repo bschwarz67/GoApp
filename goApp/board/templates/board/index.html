@@ -81,8 +81,8 @@
 			{% for x in game.piecePositions|split %}
 				
 				<div>	
-					<input type="radio" name="coordinate" value="{{ forloop.counter }}" id="coordinate_{{ forloop.counter }}">
-					<label for="coordinate_{{ forloop.counter }}" id="coordinate_{{ forloop.counter }}"></label>
+					<input type="radio" name="coordinate" value="{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}">
+					<label for="coordinate_{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}"></label>
 				</div>
 
 			{% endfor %}
@@ -113,15 +113,16 @@
 		
 		
 		<script>
+			//pulls game into javascript
+			let game = JSON.parse(document.getElementById('viewsGame').textContent);
 
 			const playSocket = new WebSocket(
 				'ws://'
 				+ window.location.host
-				+ '/ws/play/'
+				+ `/ws/play/${game.id}/`
 			);
 
-			//pulls game into javascript
-			let game = JSON.parse(document.getElementById('viewsGame').textContent);
+			
 
 			
 
