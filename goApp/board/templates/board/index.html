@@ -80,10 +80,22 @@
 		{% csrf_token %}
 			{% for x in game.piecePositions|split %}
 				
+				{% if x == "1" %}
+					<div>	
+						<input type="radio" name="coordinate" value="{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}">
+						<label style="background-color:grey;border-color:grey"for="coordinate_{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}"></label>
+					</div>
+				{% elif x == "2" %}
 				<div>	
 					<input type="radio" name="coordinate" value="{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}">
-					<label for="coordinate_{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}"></label>
+					<label style="background-color:black;border-color:black"for="coordinate_{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}"></label>
 				</div>
+				{% else %}
+					<div>	
+						<input type="radio" name="coordinate" value="{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}">
+						<label for="coordinate_{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}"></label>
+					</div>
+				{% endif %}
 
 			{% endfor %}
 			<div id="submit-container">
@@ -129,19 +141,71 @@
 
 			playSocket.onmessage = function(e) {
 				const data = JSON.parse(e.data);
-				if(data.messageType == 'playedAgainstOpponent') {
-
-					let playedLabel = document.querySelector(`label[for=coordinate_${data.coordinatePlayed}]`);
-					playedLabel.style.backgroundColor = "#bfb";
-					playedLabel.style.borderColor = "#4c4";
+				
+				if(data.message_type == 'played_against_opponent') {
+					
+					let coordinatesTaken = data.coordinates_taken.split(/\[|\]|,\s/)
+					console.log(coordinatesTaken)
+					if(data.played_against == game.whitePlayer) {
+						let playedLabel = document.querySelector(`label[for=coordinate_${data.coordinate_played}]`);
+						playedLabel.style.backgroundColor = "black";
+						playedLabel.style.borderColor = "black";
+						for(x = 1; x < coordinatesTaken.length - 1; x++) {
+							console.log(x)
+							if(coordinatesTaken[x] != "") {
+								let takenLabel = document.querySelector(`label[for=coordinate_${coordinatesTaken[x]}]`);
+								takenLabel.style.backgroundColor = "transparent";
+								takenLabel.style.borderColor = "transparent";
+							}
+						}
+					}
+					else {
+						let playedLabel = document.querySelector(`label[for=coordinate_${data.coordinate_played}]`);
+						playedLabel.style.backgroundColor = "grey";
+						playedLabel.style.borderColor = "grey";
+						for(x = 1; x < coordinatesTaken.length - 1; x++) {
+							console.log(x)
+							if(coordinatesTaken[x] != "") {
+								let takenLabel = document.querySelector(`label[for=coordinate_${coordinatesTaken[x]}]`);
+								takenLabel.style.backgroundColor = "transparent";
+								takenLabel.style.borderColor = "transparent";
+							}
+						}
+					}
 
 				}
 
-				else if(data.messageType == 'played') {
+				else if(data.message_type == 'played') {
 
-					let playedLabel = document.querySelector(`label[for=coordinate_${data.coordinatePlayed}]`);
-					playedLabel.style.backgroundColor = "#bfb";
-					playedLabel.style.borderColor = "#4c4";
+					let coordinatesTaken = data.coordinates_taken.split(/\[|\]|,\s/)
+					console.log(coordinatesTaken)
+					if(data.played_against == game.whitePlayer) {
+						let playedLabel = document.querySelector(`label[for=coordinate_${data.coordinate_played}]`);
+						playedLabel.style.backgroundColor = "black";
+						playedLabel.style.borderColor = "black";
+						for(x = 1; x < coordinatesTaken.length - 1; x++) {
+							console.log(x)
+							if(coordinatesTaken[x] != "") {
+								let takenLabel = document.querySelector(`label[for=coordinate_${coordinatesTaken[x]}]`);
+								takenLabel.style.backgroundColor = "transparent";
+								takenLabel.style.borderColor = "transparent";
+							}
+						}
+					}
+					else {
+						let playedLabel = document.querySelector(`label[for=coordinate_${data.coordinate_played}]`);
+						playedLabel.style.backgroundColor = "grey";
+						playedLabel.style.borderColor = "grey";
+						for(x = 1; x < coordinatesTaken.length - 1; x++) {
+							console.log(x)
+							if(coordinatesTaken[x] != "") {
+								let takenLabel = document.querySelector(`label[for=coordinate_${coordinatesTaken[x]}]`);
+								takenLabel.style.backgroundColor = "transparent";
+								takenLabel.style.borderColor = "transparent";
+							}
+						}
+					}
+					
 
 				}
 
@@ -151,7 +215,7 @@
 					let errorNode = document.createElement("div");
 					errorNode.style.width = "160px";
 					errorNode.style.height = "20px";
-					errorNode.textContent = "sorry thats an invalid move";
+					errorNode.textContent = data.message;
 					errorNode.style.color = "red";
 					document.querySelector("#submit-container").insertBefore(errorNode, document.querySelector("#Play"));
 				
@@ -175,7 +239,6 @@
 				let playedLabel = document.querySelector(`label[for=${playedInput.id}]`);
 				
 				
-
 
 
 				if(game.whitePlayer == game.playerInScope) {

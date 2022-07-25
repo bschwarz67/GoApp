@@ -12,3 +12,4 @@ class Player(AbstractUser):
     opponents = models.ManyToManyField('self', symmetrical=False, related_name="+")
     challengedPlayers = models.ManyToManyField('self', symmetrical=False, related_name="+")
     challengingPlayers = models.ManyToManyField('self', symmetrical=False, related_name="+")
+    previousPiecePositions = models.CharField(max_length=60, default='0000000000000000000000000000000000000000000000000')

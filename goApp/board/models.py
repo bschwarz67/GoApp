@@ -8,4 +8,3 @@ class Game(models.Model):
 	whitePlayer = models.ForeignKey(home.models.Player, on_delete=models.CASCADE, related_name="+", null=True)
 	blackPlayer = models.ForeignKey(home.models.Player, on_delete=models.CASCADE, related_name="+", null=True)
 	movingPlayer = models.ForeignKey(home.models.Player, on_delete=models.CASCADE, related_name="+", null=True)
-	
