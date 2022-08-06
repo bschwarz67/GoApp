@@ -126,8 +126,8 @@ class PlayConsumer(WebsocketConsumer):
 
             
 
-    #add conditions so that only message will be returned if its one of the two playsers in the game, in the instance of multiple 
-    #games with >2 players this could get messy
+    #havent tested cases where player is in one game but someone plays on them in another game, probably will temporarily change
+    #thier board, have to write a check for this. need to check this
     def play(self, event):
 
         

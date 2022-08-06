@@ -20,34 +20,35 @@
 				height: 255px;
 			}
 
-			
+			/*
 			.piece-container input[type="radio"] {
 				opacity: 0;
 				position: fixed;
 				width: 0px;
 				height: 0px;
 			}
-			
+			*/
 
+			.piece-container div {
+				width: 43px;
+				height: 43px;
+				z-index: 2;
+			}
 			
-			.piece-container label {
+			.piece-container .piece-input-container div {
 				border-radius: 50%;
 				width: 43px;
 				height: 43px;
 				display: inline-block;
 			}
 			
-			
+			/*
 			.piece-container input[type="radio"]:checked + label {
 				background-color:#bfb;
 				border-color: #4c4;
 			}
-	
-			.piece-container div {
-				width: 43px;
-				height: 43px;
-				z-index: 2;
-			}
+			*/
+
 
 			.tile-container div {
 				width: 40px;
@@ -65,7 +66,7 @@
 			}
 
 
-			#Play {
+			#play {
 				width: 80px;
 				height: 20px;
 			}
@@ -81,26 +82,26 @@
 			{% for x in game.piecePositions|split %}
 				
 				{% if x == "1" %}
-					<div>	
-						<input type="radio" name="coordinate" value="{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}">
-						<label style="background-color:grey;border-color:grey"for="coordinate_{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}"></label>
+					<div class="piece-input-container">	
+						<!-- <input type="radio" name="coordinate" value="{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}"> -->
+						<div onclick=setPieceDown(this) style="background-color:grey;border-color:grey" for="coordinate_{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}"></div>
 					</div>
 				{% elif x == "2" %}
-				<div>	
-					<input type="radio" name="coordinate" value="{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}">
-					<label style="background-color:black;border-color:black"for="coordinate_{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}"></label>
-				</div>
+					<div class="piece-input-container">	
+						<!--<input type="radio" name="coordinate" value="{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}">-->
+						<div onclick=setPieceDown(this) style="background-color:black;border-color:black" for="coordinate_{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}"></div>
+					</div>
 				{% else %}
-					<div>	
-						<input type="radio" name="coordinate" value="{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}">
-						<label for="coordinate_{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}"></label>
+					<div class="piece-input-container">	
+						<!--<input type="radio" name="coordinate" value="{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}">-->
+						<div onclick=setPieceDown(this) style="background-color:transparent;border-color:transparent" for="coordinate_{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}"></div>
 					</div>
 				{% endif %}
 
 			{% endfor %}
 			<div id="submit-container">
 				<div id="submit-error"></div>
-				<input type="button" value="Play" id="Play">
+				<input type="button" value="Play" id="play">
 			</div>
 			
 		</form>
@@ -128,6 +129,8 @@
 			//pulls game into javascript
 			let game = JSON.parse(document.getElementById('viewsGame').textContent);
 
+			let selected = "";
+
 			const playSocket = new WebSocket(
 				'ws://'
 				+ window.location.host
@@ -145,63 +148,64 @@
 				if(data.message_type == 'played_against_opponent') {
 					
 					let coordinatesTaken = data.coordinates_taken.split(/\[|\]|,\s/)
-					console.log(coordinatesTaken)
 					if(data.played_against == game.whitePlayer) {
-						let playedLabel = document.querySelector(`label[for=coordinate_${data.coordinate_played}]`);
+						let playedLabel = document.querySelector(`div[id=coordinate_${data.coordinate_played}]`);
 						playedLabel.style.backgroundColor = "black";
 						playedLabel.style.borderColor = "black";
-						for(x = 1; x < coordinatesTaken.length - 1; x++) {
-							console.log(x)
+						game.piecePositions = game.piecePositions.substring(0, parseInt(data.coordinate_played)) + "2" + game.piecePositions.substring(parseInt(data.coordinate_played) + 1);
+						for(x = 0; x < coordinatesTaken.length; x++) {
 							if(coordinatesTaken[x] != "") {
-								let takenLabel = document.querySelector(`label[for=coordinate_${coordinatesTaken[x]}]`);
+								let takenLabel = document.querySelector(`div[id=coordinate_${coordinatesTaken[x]}]`);
 								takenLabel.style.backgroundColor = "transparent";
 								takenLabel.style.borderColor = "transparent";
+								game.piecePositions = game.piecePositions.substring(0, parseInt(coordinatesTaken[x])) + "0" + game.piecePositions.substring(parseInt(coordinatesTaken[x]) + 1);
 							}
 						}
 					}
 					else {
-						let playedLabel = document.querySelector(`label[for=coordinate_${data.coordinate_played}]`);
+						let playedLabel = document.querySelector(`div[id=coordinate_${data.coordinate_played}]`);
 						playedLabel.style.backgroundColor = "grey";
 						playedLabel.style.borderColor = "grey";
-						for(x = 1; x < coordinatesTaken.length - 1; x++) {
-							console.log(x)
+						game.piecePositions = game.piecePositions.substring(0, parseInt(data.coordinate_played)) + "1" + game.piecePositions.substring(parseInt(data.coordinate_played) + 1);
+						for(x = 0; x < coordinatesTaken.length; x++) {
 							if(coordinatesTaken[x] != "") {
-								let takenLabel = document.querySelector(`label[for=coordinate_${coordinatesTaken[x]}]`);
+								let takenLabel = document.querySelector(`div[id=coordinate_${coordinatesTaken[x]}]`);
 								takenLabel.style.backgroundColor = "transparent";
 								takenLabel.style.borderColor = "transparent";
+								game.piecePositions = game.piecePositions.substring(0, parseInt(coordinatesTaken[x])) + "0" + game.piecePositions.substring(parseInt(coordinatesTaken[x]) + 1);
 							}
 						}
 					}
-
 				}
 
 				else if(data.message_type == 'played') {
 
 					let coordinatesTaken = data.coordinates_taken.split(/\[|\]|,\s/)
-					console.log(coordinatesTaken)
 					if(data.played_against == game.whitePlayer) {
-						let playedLabel = document.querySelector(`label[for=coordinate_${data.coordinate_played}]`);
+						let playedLabel = document.querySelector(`div[id=coordinate_${data.coordinate_played}]`);
 						playedLabel.style.backgroundColor = "black";
 						playedLabel.style.borderColor = "black";
-						for(x = 1; x < coordinatesTaken.length - 1; x++) {
-							console.log(x)
+						game.piecePositions = game.piecePositions.substring(0, parseInt(data.coordinate_played)) + "2" + game.piecePositions.substring(parseInt(data.coordinate_played) + 1);
+						for(x = 0; x < coordinatesTaken.length; x++) {
 							if(coordinatesTaken[x] != "") {
-								let takenLabel = document.querySelector(`label[for=coordinate_${coordinatesTaken[x]}]`);
+								let takenLabel = document.querySelector(`div[id=coordinate_${coordinatesTaken[x]}]`);
 								takenLabel.style.backgroundColor = "transparent";
 								takenLabel.style.borderColor = "transparent";
+								game.piecePositions = game.piecePositions.substring(0, parseInt(coordinatesTaken[x])) + "0" + game.piecePositions.substring(parseInt(coordinatesTaken[x]) + 1);
 							}
 						}
 					}
 					else {
-						let playedLabel = document.querySelector(`label[for=coordinate_${data.coordinate_played}]`);
+						let playedLabel = document.querySelector(`div[id=coordinate_${data.coordinate_played}]`);
 						playedLabel.style.backgroundColor = "grey";
 						playedLabel.style.borderColor = "grey";
-						for(x = 1; x < coordinatesTaken.length - 1; x++) {
-							console.log(x)
+						game.piecePositions = game.piecePositions.substring(0, parseInt(data.coordinate_played)) + "1" + game.piecePositions.substring(parseInt(data.coordinate_played) + 1);
+						for(x = 0; x < coordinatesTaken.length; x++) {
 							if(coordinatesTaken[x] != "") {
-								let takenLabel = document.querySelector(`label[for=coordinate_${coordinatesTaken[x]}]`);
+								let takenLabel = document.querySelector(`div[id=coordinate_${coordinatesTaken[x]}]`);
 								takenLabel.style.backgroundColor = "transparent";
 								takenLabel.style.borderColor = "transparent";
+								game.piecePositions = game.piecePositions.substring(0, parseInt(coordinatesTaken[x])) + "0" + game.piecePositions.substring(parseInt(coordinatesTaken[x]) + 1);
 							}
 						}
 					}
@@ -234,31 +238,77 @@
 			}	
 
 
-			document.querySelector("#Play").onclick = function(e) {
-				let playedInput = document.querySelector('input[name="coordinate"]:checked');
-				let playedLabel = document.querySelector(`label[for=${playedInput.id}]`);
+
+
+			function setPieceDown(event) {
+
+				
+				for(x = 0; x < game.piecePositions.length; x++) {
+					if(game.piecePositions[x] == "0") {
+						let setLabel = document.querySelector(`div[id=coordinate_${x}]`);
+						setLabel.style.backgroundColor = "transparent";
+						setLabel.style.borderColor = "transparent";
+					}
+					else if(game.piecePositions[x] == "1") {
+						let setLabel = document.querySelector(`div[id=coordinate_${x}]`);
+						setLabel.style.backgroundColor = "grey";
+						setLabel.style.borderColor = "grey";
+					}
+					else {
+						let setLabel = document.querySelector(`div[id=coordinate_${x}]`);
+						setLabel.style.backgroundColor = "black";
+						setLabel.style.borderColor = "black";
+					}
+				}
+
+
+				if(game.playerInScope == game.whitePlayer) {
+					if (event.style.backgroundColor == "transparent" && event.style.borderColor == "transparent") {
+						event.style.backgroundColor = "grey";
+						event.style.borderColor = "grey";
+						selected = event;
+					}
+				}
+				
+				else { 
+					if (event.style.backgroundColor == "transparent" && event.style.borderColor == "transparent") {
+						event.style.backgroundColor = "black";
+						event.style.borderColor = "black";
+						selected = event;
+					}
+				}
 				
 				
 
+        	};
 
-				if(game.whitePlayer == game.playerInScope) {
-					playSocket.send(JSON.stringify({
-					'playedAgainst': game.blackPlayer,
-					'messageType': 'play',
-					'coordinate': playedLabel.id.split("_")[1],
-					'gameID': game.id
 
-					}));
+			document.querySelector("#play").onclick = function(e) {
+				//let playedInput = document.querySelector('input[name="coordinate"]:checked');
+
+				if(selected != "") {
+					let playedLabel = document.querySelector(`div[id=${selected.id}]`);
+					if(game.whitePlayer == game.playerInScope) {
+						playSocket.send(JSON.stringify({
+						'playedAgainst': game.blackPlayer,
+						'messageType': 'play',
+						'coordinate': playedLabel.id.split("_")[1],
+						'gameID': game.id
+
+						}));
+					}
+					else {
+						playSocket.send(JSON.stringify({
+						'playedAgainst': game.whitePlayer,
+						'messageType': 'play',
+						'coordinate': playedLabel.id.split("_")[1],
+						'gameID': game.id
+
+						}));
+					}
+
 				}
-				else {
-					playSocket.send(JSON.stringify({
-					'playedAgainst': game.whitePlayer,
-					'messageType': 'play',
-					'coordinate': playedLabel.id.split("_")[1],
-					'gameID': game.id
-
-					}));
-				}
+				
 
 				
 
