@@ -15,20 +15,21 @@ class Check:
 
     def checkPlay(self):
         resultList = []
+        checkKoFlag = True
 
         self.possiblePosition = self.game.piecePositions
         if self.color == '1':
             self.possiblePosition = self.possiblePosition[:self.coordinate] + '1' + self.possiblePosition[self.coordinate + 1:]
+            if self.player == self.game.blackPlayer:
+                self.color = '2'
+                checkKoFlag = False
         else:
             self.possiblePosition = self.possiblePosition[:self.coordinate] + '2' + self.possiblePosition[self.coordinate + 1:]
-        print('possiblePosition before takes: ')
-        print(self.possiblePosition[0:7])
-        print(self.possiblePosition[7:14])
-        print(self.possiblePosition[14:21])
-        print(self.possiblePosition[21:28])
-        print(self.possiblePosition[28:35])
-        print(self.possiblePosition[35:42])
-        print(self.possiblePosition[42:49])
+            if self.player == self.game.whitePlayer:
+                self.color = '1'
+                checkKoFlag = False
+        
+
 
         self.position2dList = []
         self.position2dList.append(self.possiblePosition[0:7])
@@ -49,12 +50,20 @@ class Check:
                 self.visitedThisCheck.clear()
         
         
-        if self.checkKo() == True:
-            resultList.append(False)
-            self.visited.clear()
-            self.taken.clear()
-            return resultList
+        if checkKoFlag == True:
+            if self.checkKo() == True:
+                resultList.append(False)
+                self.visited.clear()
+                self.taken.clear()
+                return resultList
 
+            else:
+                resultList.append(True)
+                for x in self.taken:
+                    resultList.append(x)
+                self.visited.clear()
+                self.taken.clear()
+                return resultList
         else:
             resultList.append(True)
             for x in self.taken:
@@ -63,26 +72,31 @@ class Check:
             self.taken.clear()
             return resultList
     
+    
     def checkKo(self):
         for x in self.taken:
             coordinate = 7 * int(list(x)[0]) + int(list(x)[1])
             self.possiblePosition = self.possiblePosition[:coordinate] + '0' + self.possiblePosition[coordinate + 1:]
-        print("possiblePosition after takes")
-        print(self.possiblePosition[0:7])
-        print(self.possiblePosition[7:14])
-        print(self.possiblePosition[14:21])
-        print(self.possiblePosition[21:28])
-        print(self.possiblePosition[28:35])
-        print(self.possiblePosition[35:42])
-        print(self.possiblePosition[42:49])
-        print(self.player.previousPiecePositions)
         if self.possiblePosition != self.player.previousPiecePositions:
-            self.game.piecePositions = self.possiblePosition
-            self.game.save()
             return False
         else:
             return True
         
+    def finalizeNewMove(self):
+        
+        if self.game.movingPlayer == self.game.whitePlayer:
+            self.game.movingPlayer = self.game.blackPlayer         
+            self.game.save()
+        else: 
+            self.game.movingPlayer = self.game.whitePlayer         
+            self.game.save()
+
+        self.game.piecePositions = self.possiblePosition
+        self.game.save()
+        self.possiblePosition = ""
+
+        self.player.previousPiecePositions = self.game.piecePositions
+        self.player.save()
 
     def checkTakes(self, ycoordinate, xcoordinate):
         self.visited.add("{}{}".format(ycoordinate, xcoordinate))

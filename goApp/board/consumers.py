@@ -44,21 +44,29 @@ class PlayConsumer(WebsocketConsumer):
         if game.movingPlayer.username == scopedUsername and game.piecePositions[coordinate] == '0':
             coordinatesTaken = []
             if scopedUsername == game.whitePlayer.username:
+
+                opponent = game.blackPlayer
+
                 checker = checkPosition.Check(game, player, coordinate, '1')
                 result = checker.checkPlay()
+
+                inverseChecker = checkPosition.Check(game, opponent, coordinate, '1')
+                inverseResult = inverseChecker.checkPlay()
+
+                
                 if result[0] == False:
                     self.send(text_data=json.dumps({
                         'message': 'cannot play this position as it is a repeat position',
                         'message_type': 'invalid_position'
                     }))
+                elif len(inverseResult) > 1 and len(result) == 1:
+                    self.send(text_data=json.dumps({
+                        'message': 'cannot play this position as there are no liberties and no takes here',
+                        'message_type': 'invalid_position'
+                    }))
                 else:
-                    game.movingPlayer = game.blackPlayer         
-                    game.save()
-                    player.previousPiecePositions = game.piecePositions
-                    player.save()
+                    checker.finalizeNewMove()
                     result.pop(0)
-                    print("result: ")
-                    print(" ".join(result))
                     for x in result:
                         coordinate = 7 * int(list(x)[0]) + int(list(x)[1])
                         coordinatesTaken.append(coordinate)
@@ -77,21 +85,29 @@ class PlayConsumer(WebsocketConsumer):
                     )
             
             else:
+
+                opponent = game.whitePlayer
+
                 checker = checkPosition.Check(game, player, coordinate, '2')
                 result = checker.checkPlay()
+
+                inverseChecker = checkPosition.Check(game, opponent, coordinate, '2')
+                inverseResult = inverseChecker.checkPlay()
+
+                
                 if result[0] == False:
                     self.send(text_data=json.dumps({
                         'message': 'cannot play this position as it is a repeat position',
                         'message_type': 'invalid_position'
                     }))
+                elif len(inverseResult) > 1 and len(result) == 1:
+                    self.send(text_data=json.dumps({
+                        'message': 'cannot play this position as there are no liberties and no takes here',
+                        'message_type': 'invalid_position'
+                    }))
                 else:
-                    game.movingPlayer = game.whitePlayer
-                    game.save()
-                    player.previousPiecePositions = game.piecePositions
-                    player.save()
+                    checker.finalizeNewMove()
                     result.pop(0)
-                    print("result: ")
-                    print(" ".join(result))
                     for x in result:
                         coordinate = 7 * int(list(x)[0]) + int(list(x)[1])
                         coordinatesTaken.append(coordinate)
@@ -131,7 +147,6 @@ class PlayConsumer(WebsocketConsumer):
     def play(self, event):
 
         
-        print("send back to sockets")
         if event['played_against'] == self.scope['user'].username:
             self.send(text_data=json.dumps({
                 'coordinate_played': event['coordinate_played'],
