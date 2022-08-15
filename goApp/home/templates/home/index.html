@@ -12,23 +12,15 @@
 	<body>
 	{% block content %}
 		{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-		<form action="{% url 'home:createTempPlayer' %}"  method="post">
-			{% csrf_token %}
-			Enter a name: <input type="text" name="name" pattern="[a-zA-z0-9]*" maxlength="10">
-			<input type="submit" value="Create Temporary Player">
-		</form>
 
-		<!-- 
-		<form action="{% url 'home:changePlayerColor' %}"  method="post">
-			{% csrf_token %}
-			Please select your color:
-			<input type="radio" id="white" name="color" value="white">
-			<label for="white">White</label><br>
-			<input type="radio" id="black" name="color" value="black">
-			<label for="black">Black</label><br>
-			<input type="submit" value="Pick Color">
-		</form>
-		-->
+
+		<div id="create-temp-player-container">
+			Enter a name: <input type="text" name="name" pattern="[a-zA-z0-9]*" maxlength="10" id="input-username">
+			<input type="submit" value="Create Temporary Player" id="create-temp-player">
+		</div>
+		
+
+
 		
 		<select id="opponent-select" size="15">
 			{% for x in availablePlayers %}
@@ -73,8 +65,11 @@
 
 
 		<script>
-			{% if user.is_authenticated %}
 
+
+
+			{% if user.is_authenticated %}
+			console.log("authenticated!");
 			var perfEntries = performance.getEntriesByType("navigation");
 
 			if (perfEntries[0].type === "back_forward") {
@@ -85,22 +80,6 @@
 			let opponents = JSON.parse(document.getElementById('opponentsList').textContent);
 			let challengingPlayers = JSON.parse(document.getElementById('challengingPlayersList').textContent);
 			
-			console.log("challenging players....")
-			for(x in challengingPlayers) {
-				console.log(challengingPlayers[x]);
-			}
-
-			console.log("challenged players....")
-			for(x in challengedPlayers) {
-				console.log(challengedPlayers[x]);
-			}
-
-			console.log("opponents....")
-			for(x in opponents) {
-				console.log(opponents[x]);
-			}
-
-
 
 			//pulls player color into javascript
 			let playerColor = JSON.parse(document.getElementById('color').textContent);
@@ -127,7 +106,7 @@
 					newOption.id = data.message;
 					document.querySelector('#invitations').add(newOption);
 				}
-				else {
+				else if (data.messageType == 'accept') { 
 					var newOption = document.createElement('option');
 					newOption.value = data.message;
 					newOption.text = data.message;
@@ -140,17 +119,19 @@
 					}
 					document.querySelector('#current-games').add(newOption);
 				}
+				else {
+					var newOption = document.createElement('option');
+					newOption.value = data.message;
+					newOption.text = data.message;
+					newOption.id = data.message;
+					document.querySelector('#opponent-select').add(newOption);
+				}
         	};
 
         	challengeSocket.onclose = function(e) {
             	console.error('Challenge socket closed unexpectedly');
         	};
 
-			
-
-
-
-			//TODO: write in handler for when no player is selected to challenge
 
 			document.querySelector('#opponent-challenge').onclick = function(e) {
 				console.log("challenging....")
@@ -177,6 +158,30 @@
 
 			};
 
+			
+
+
+
+
+			document.querySelector('#create-temp-player').onclick = function(e) {
+
+				let errorNode = document.createElement("div");
+				errorNode.style.width = "160px";
+				errorNode.style.height = "20px";
+				errorNode.textContent = "You have already create a temporary player";
+				errorNode.style.color = "red";
+				let submitNode = document.querySelector("#create-temp-player")
+				document.querySelector("#create-temp-player-container").insertBefore(errorNode, submitNode.nextSibling);
+			
+				
+				window.setTimeout(function() {
+					errorNode.parentNode.removeChild(errorNode);
+					
+				}, 2000);
+			
+			};
+
+
 
 			//TODO write in handler for when no player is selected to accept
 
@@ -195,6 +200,50 @@
 				}));
 				messageInputDom.value = '';
         	};
+
+			{% else %}
+
+			var perfEntries = performance.getEntriesByType("navigation");
+
+			if (perfEntries[0].type === "back_forward") {
+    			location.reload(true);
+			}
+
+			const challengeSocket = new WebSocket(
+				'ws://'
+				+ window.location.host
+				+ '/ws/challenge/'
+        	);
+
+			challengeSocket.onmessage = function(e) {
+				const data = JSON.parse(e.data);
+				if(data.addToPossibleOpponents == 'False') {
+					window.location.href= `/home/logNewPlayerIn/${data.message}`;
+				
+				}
+				else {
+					var newOption = document.createElement('option');
+					newOption.value = data.message;
+					newOption.text = data.message;
+					newOption.id = data.message;
+					document.querySelector('#opponent-select').add(newOption);
+				}
+				
+        	};
+
+			document.querySelector('#create-temp-player').onclick = function(e) {
+
+				const inputUsername = document.querySelector('#input-username').value;
+
+				const filter = /\W/;
+				if(!filter.test(inputUsername) && inputUsername.length <= 10) {
+					challengeSocket.send(JSON.stringify({
+						'possibleNewPlayer': inputUsername,
+						'messageType': 'createNewPlayer'
+					}));
+				}
+
+			};
 
         	{% endif %}
 

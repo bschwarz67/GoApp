@@ -87,31 +87,10 @@ def index(request):
 
 
 
-def createTempPlayer(request):
-	if(Player.objects.filter(username=request.POST['name']).exists()):
-		if(request.user.is_authenticated):
-			if(request.user.username == request.POST['name']):
-				Player.objects.get(username=request.user).save()
-				return HttpResponseRedirect(reverse('home:index'))
-			else:
-				Player.objects.get(username=request.user).save()
-				request.session['error_message'] = "That username already exists, please choose another"
-				return HttpResponseRedirect(reverse('home:index'))
-		else:
-			request.session['error_message'] = "That username already exists, please choose another"
-			return HttpResponseRedirect(reverse('home:index'))
-	else:
-		if(request.user.is_authenticated):
-			updatedPlayer = Player.objects.get(username=request.user)
-			#updatedPlayer.username = request.POST['name']
-			updatedPlayer.save()
-			return HttpResponseRedirect(reverse('home:index'))
-		else:
-			newPlayerUsername = request.POST['name']
-			newPlayer = Player(username=newPlayerUsername)
-			newPlayer.save()
-			login(request, newPlayer)
-			return HttpResponseRedirect(reverse('home:index'))
+def logNewPlayerIn(request, newUserUsername):
+	print(newUserUsername)
+	login(request, Player.objects.get(username=newUserUsername))
+	return HttpResponseRedirect(reverse('home:index'))
 
 
 
