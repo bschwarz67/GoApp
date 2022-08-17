@@ -12,7 +12,6 @@ import checkPosition
 class PlayConsumer(WebsocketConsumer):
     def connect(self):
         self.player_group = '%s_group' % self.scope['path'].split('/')[3]
-        print(' joined player group %s_group' % self.scope['path'].split('/')[3])
         # Join player group
         async_to_sync(self.channel_layer.group_add)(
             self.player_group,
@@ -34,53 +33,55 @@ class PlayConsumer(WebsocketConsumer):
         pass
 
     def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        coordinate = int(text_data_json['coordinate'])
+        textDataJson = json.loads(text_data)
+        coordinateInt = int(textDataJson['coordinate'])
         scopedUsername = self.scope['user'].username
-        game = Game.objects.get(id=int(text_data_json['gameID']))
+        game = Game.objects.get(id=int(textDataJson['gameId']))
         player = Player.objects.get(username=scopedUsername)
-        
+        playedAgainst = textDataJson['playedAgainst']
+        gameId = textDataJson['gameId']
+        coordinate = textDataJson['coordinate']
 
-        if game.movingPlayer.username == scopedUsername and game.piecePositions[coordinate] == '0':
+        if game.movingPlayer.username == scopedUsername and game.piecePositions[coordinateInt] == '0':
             coordinatesTaken = []
             if scopedUsername == game.whitePlayer.username:
 
                 opponent = game.blackPlayer
 
-                checker = checkPosition.Check(game, player, coordinate, '1')
+                checker = checkPosition.Check(game, player, coordinateInt, '1')
                 result = checker.checkPlay()
 
-                inverseChecker = checkPosition.Check(game, opponent, coordinate, '1')
+                inverseChecker = checkPosition.Check(game, opponent, coordinateInt, '1')
                 inverseResult = inverseChecker.checkPlay()
 
                 
                 if result[0] == False:
                     self.send(text_data=json.dumps({
-                        'message': 'cannot play this position as it is a repeat position',
-                        'message_type': 'invalid_position'
+                        'errorMessage': 'cannot play this position as it is a repeat position',
+                        'messageType': 'invalidPosition'
                     }))
                 elif len(inverseResult) > 1 and len(result) == 1:
                     self.send(text_data=json.dumps({
-                        'message': 'cannot play this position as there are no liberties and no takes here',
-                        'message_type': 'invalid_position'
+                        'errorMessage': 'cannot play this position as there are no liberties and no takes here',
+                        'messageType': 'invalidPosition'
                     }))
                 else:
                     checker.finalizeNewMove()
                     result.pop(0)
                     for x in result:
-                        coordinate = 7 * int(list(x)[0]) + int(list(x)[1])
-                        coordinatesTaken.append(coordinate)
+                        coordinateInt = 7 * int(list(x)[0]) + int(list(x)[1])
+                        coordinatesTaken.append(coordinateInt)
 
-                    JSONcoordinatesTaken = json.dumps(coordinatesTaken)
+                    jsonCoordinatesTaken = json.dumps(coordinatesTaken)
                     
                     async_to_sync(self.channel_layer.group_send)(
                         self.player_group,
                         {
                             'type': 'play',
-                            'played_against': text_data_json['playedAgainst'],
-                            'game_id': text_data_json['gameID'],
-                            'coordinate_played': text_data_json['coordinate'],
-                            'coordinates_taken': JSONcoordinatesTaken
+                            'playedAgainst': playedAgainst,
+                            'gameId': gameId,
+                            'coordinatePlayed': coordinate,
+                            'coordinatesTaken': jsonCoordinatesTaken
                         }
                     )
             
@@ -88,56 +89,56 @@ class PlayConsumer(WebsocketConsumer):
 
                 opponent = game.whitePlayer
 
-                checker = checkPosition.Check(game, player, coordinate, '2')
+                checker = checkPosition.Check(game, player, coordinateInt, '2')
                 result = checker.checkPlay()
 
-                inverseChecker = checkPosition.Check(game, opponent, coordinate, '2')
+                inverseChecker = checkPosition.Check(game, opponent, coordinateInt, '2')
                 inverseResult = inverseChecker.checkPlay()
 
                 
                 if result[0] == False:
                     self.send(text_data=json.dumps({
-                        'message': 'cannot play this position as it is a repeat position',
-                        'message_type': 'invalid_position'
+                        'errorMessage': 'cannot play this position as it is a repeat position',
+                        'messageType': 'invalidPosition'
                     }))
                 elif len(inverseResult) > 1 and len(result) == 1:
                     self.send(text_data=json.dumps({
-                        'message': 'cannot play this position as there are no liberties and no takes here',
-                        'message_type': 'invalid_position'
+                        'errorMessage': 'cannot play this position as there are no liberties and no takes here',
+                        'messageType': 'invalidPosition'
                     }))
                 else:
                     checker.finalizeNewMove()
                     result.pop(0)
                     for x in result:
-                        coordinate = 7 * int(list(x)[0]) + int(list(x)[1])
-                        coordinatesTaken.append(coordinate)
+                        coordinateInt = 7 * int(list(x)[0]) + int(list(x)[1])
+                        coordinatesTaken.append(coordinateInt)
 
-                    JSONcoordinatesTaken = json.dumps(coordinatesTaken)
+                    jsonCoordinatesTaken = json.dumps(coordinatesTaken)
                     
                     async_to_sync(self.channel_layer.group_send)(
                         self.player_group,
                         {
                             'type': 'play',
-                            'played_against': text_data_json['playedAgainst'],
-                            'game_id': text_data_json['gameID'],
-                            'coordinate_played': text_data_json['coordinate'],
-                            'coordinates_taken': JSONcoordinatesTaken
+                            'playedAgainst': playedAgainst,
+                            'gameId': gameId,
+                            'coordinatePlayed': coordinate,
+                            'coordinatesTaken': jsonCoordinatesTaken
                         }
                     )
 
 
 
-        elif game.movingPlayer.username == scopedUsername and game.piecePositions[coordinate] != '0':
+        elif game.movingPlayer.username == scopedUsername and game.piecePositions[coordinateInt] != '0':
             self.send(text_data=json.dumps({
-                'message': 'cannot play this position as it is not an empty space',
-                'message_type': 'invalid_position'
+                'errorMessage': 'cannot play this position as it is not an empty space',
+                'messageType': 'invalidPosition'
             }))
 
         
         else:
             self.send(text_data=json.dumps({
-                'message': 'it is not your turn',
-                'message_type': 'not_your_turn'
+                'errorMessage': 'it is not your turn',
+                'messageType': 'notYourTurn'
             }))
 
             
@@ -147,20 +148,20 @@ class PlayConsumer(WebsocketConsumer):
     def play(self, event):
 
         
-        if event['played_against'] == self.scope['user'].username:
+        if event['playedAgainst'] == self.scope['user'].username:
             self.send(text_data=json.dumps({
-                'coordinate_played': event['coordinate_played'],
-                'message_type': 'played_against_opponent',
-                'played_against': event['played_against'],
-                'coordinates_taken': event['coordinates_taken']
+                'coordinatePlayed': event['coordinatePlayed'],
+                'messageType': 'playedAgainstOpponent',
+                'playedAgainst': event['playedAgainst'],
+                'coordinatesTaken': event['coordinatesTaken']
             }))
             
         else:
             self.send(text_data=json.dumps({
-                'coordinate_played': event['coordinate_played'],
-                'coordinates_taken': event['coordinates_taken'],
-                'message_type': 'played',
-                'played_against': event['played_against']
+                'coordinatePlayed': event['coordinatePlayed'],
+                'coordinatesTaken': event['coordinatesTaken'],
+                'messageType': 'played',
+                'playedAgainst': event['playedAgainst']
             }))
                     
 

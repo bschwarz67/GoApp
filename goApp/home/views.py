@@ -2,10 +2,6 @@
 #create list for Player objects of previous aliases, allow switching.
 #figure out how to save every time user does out of game action, think changePlayerColor and the challenges
 
-#for views.index.html, could there be a bette rway to keep track of currently challenged players and opponents for preventing
-#more than on challenge?
-
-#can you challengers players when theyre not in home.index in their browser?
 
 from django.contrib.auth import login
 from django.utils import timezone

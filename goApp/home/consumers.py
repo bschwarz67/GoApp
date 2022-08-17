@@ -10,9 +10,7 @@ from django.utils import timezone
 class ChallengeConsumer(WebsocketConsumer):
     def connect(self):
 
-        self.player_name = self.scope['user']
-        self.player_group = '%s_challenge_group' % self.player_name
-        print(self.player_group)
+        self.player_group = '%s_challenge_group' % self.scope['user']
         # Join player group
         async_to_sync(self.channel_layer.group_add)(
             self.player_group,
@@ -34,49 +32,56 @@ class ChallengeConsumer(WebsocketConsumer):
             print(self.scope['session']['test'])
         else:
             print('not saved')
-        text_data_json = json.loads(text_data)
-        if text_data_json['messageType'] != 'createNewPlayer':
-            acting_player = self.scope['user'].username
-            player_group = text_data_json['message']
-            player_group += "_challenge_group"
+        textDataJson = json.loads(text_data)
+        if textDataJson['messageType'] != 'createNewPlayer':
+
+            selectedPlayer = Player.objects.get(username=textDataJson['selectedPlayer'])
+            actingPlayer = Player.objects.get(username=self.scope['user'].username)
+
+            player_group = '%s_challenge_group' % selectedPlayer.username
             #connect to player group
             async_to_sync(self.channel_layer.group_add)(
                 player_group,
                 self.channel_name
             )
 
-            if text_data_json['messageType'] == 'accept':
+            if textDataJson['messageType'] == 'accept':
                 # Send accept message to both players involved
                 newGame = Game()
-                newGame.whitePlayer = Player.objects.get(username=acting_player)
-                newGame.blackPlayer = Player.objects.get(username=text_data_json['message'])
-                newGame.movingPlayer = Player.objects.get(username=acting_player)
+                newGame.whitePlayer = actingPlayer
+                newGame.blackPlayer = selectedPlayer
+                newGame.movingPlayer = actingPlayer
                 newGame.save()
-                Player.objects.get(username=text_data_json['message']).challengedPlayers.remove(Player.objects.get(username=acting_player))
-                Player.objects.get(username=text_data_json['message']).opponents.add(Player.objects.get(username=acting_player))
-                Player.objects.get(username=acting_player).opponents.add(Player.objects.get(username=text_data_json['message']))
-                Player.objects.get(username=acting_player).challengingPlayers.remove(Player.objects.get(username=text_data_json['message']))
+                selectedPlayer.challengedPlayers.remove(actingPlayer)
+                selectedPlayer.opponents.add(actingPlayer)
+                if selectedPlayer.challengingPlayers.contains(actingPlayer):
+                    selectedPlayer.challengingPlayers.remove(actingPlayer)
+                actingPlayer.opponents.add(selectedPlayer)
+                actingPlayer.challengingPlayers.remove(selectedPlayer)
+                if actingPlayer.challengedPlayers.contains(selectedPlayer):
+                    actingPlayer.challengedPlayers.remove(selectedPlayer)
+
                 async_to_sync(self.channel_layer.group_send)(
                     player_group,
                     {
-                        'type': 'accept_player',
-                        'accepting_player': acting_player,
-                        'accepted_player': text_data_json['message'],
-                        'new_game_id': newGame.id
+                        'type': 'acceptPlayer',
+                        'acceptingPlayer': actingPlayer.username,
+                        'acceptedPlayer': selectedPlayer.username,
+                        'newGameId': newGame.id
                     }
                 )
             else:
                 
-                Player.objects.get(username=text_data_json['message']).challengingPlayers.add(Player.objects.get(username=acting_player))
-                Player.objects.get(username=acting_player).challengedPlayers.add(Player.objects.get(username=text_data_json['message']))
+                selectedPlayer.challengingPlayers.add(actingPlayer)
+                actingPlayer.challengedPlayers.add(selectedPlayer)
                 
                 # Send challenge message to challenged player
                 async_to_sync(self.channel_layer.group_send)(
                     player_group,
                     {
-                        'type': 'challenge_player',
-                        'challenging_player': acting_player,
-                        'challenged_player' : text_data_json['message']
+                        'type': 'challengePlayer',
+                        'challengingPlayer': actingPlayer.username,
+                        'challengedPlayer' : selectedPlayer.username
                     }
                 )
 
@@ -87,12 +92,13 @@ class ChallengeConsumer(WebsocketConsumer):
                 self.channel_name
             )
         else:
-            if(Player.objects.filter(username=text_data_json['possibleNewPlayer']).exists()):
+            possibleNewPlayer = textDataJson['possibleNewPlayer']
+            if(Player.objects.filter(username=possibleNewPlayer).exists()):
                 if(self.scope['user'].is_authenticated):
-                    if(self.scope['user'].username == text_data_json['possibleNewPlayer']):
+                    if(self.scope['user'].username == possibleNewPlayer):
                         Player.objects.get(username=self.scope['user'].username).save()        
                     else:
-                        Player.objects.get(username=text_data_json['possibleNewPlayer']).save()
+                        Player.objects.get(username=possibleNewPlayer).save()
                 else:
                     pass
             else:
@@ -102,7 +108,7 @@ class ChallengeConsumer(WebsocketConsumer):
                     updatedPlayer.save()
                 else:
                     sessionObject = self.scope['session']
-                    newPlayerUsername = text_data_json['possibleNewPlayer']
+                    newPlayerUsername = possibleNewPlayer
                     newPlayer = Player(username=newPlayerUsername)
                     newPlayer.save()
                     async_to_sync(login)(self.scope, newPlayer)
@@ -112,8 +118,8 @@ class ChallengeConsumer(WebsocketConsumer):
                         self.player_group,
                         self.channel_name
                     )
-                    self.player_name = self.scope['user']
-                    self.player_group = '%s_challenge_group' % self.player_name
+
+                    self.player_group = '%s_challenge_group' % self.scope['user']
 
                     async_to_sync(self.channel_layer.group_add)(
                         self.player_group,
@@ -123,9 +129,9 @@ class ChallengeConsumer(WebsocketConsumer):
                     async_to_sync(self.channel_layer.group_send)(
                         self.player_group,
                         {
-                            'type': 'display_new_player',
-                            'new_player_username': newPlayer.username,
-                            'ws_event_for_scoped_user': 'True',
+                            'type': 'displayNewPlayer',
+                            'newPlayerUsername': newPlayer.username,
+                            'wsEventForScopedUser': 'True',
                         }
                     )
 
@@ -133,8 +139,7 @@ class ChallengeConsumer(WebsocketConsumer):
                         timeSinceLastOutOfGameAction = timezone.now() - player.lastOutOfGameAction
                         if timeSinceLastOutOfGameAction.days < 1:
                             if timeSinceLastOutOfGameAction.seconds <= 1200 and not player.username == newPlayer.username:
-                                player_group = player.username
-                                player_group += "_challenge_group"
+                                player_group = '%s_challenge_group' % player.username
                                 #connect to player group
                                 async_to_sync(self.channel_layer.group_add)(
                                     player_group,
@@ -143,9 +148,9 @@ class ChallengeConsumer(WebsocketConsumer):
                                 async_to_sync(self.channel_layer.group_send)(
                                     player_group,
                                     {
-                                        'type': 'display_new_player',
-                                        'new_player_username': newPlayer.username,
-                                        'ws_event_for_scoped_user': 'False',
+                                        'type': 'displayNewPlayer',
+                                        'newPlayerUsername': newPlayer.username,
+                                        'wsEventForScopedUser': 'False',
                                     }
                                 )
                                 async_to_sync(self.channel_layer.group_discard)(
@@ -161,9 +166,9 @@ class ChallengeConsumer(WebsocketConsumer):
                     async_to_sync(self.channel_layer.group_send)(
                         player_group,
                         {
-                            'type': 'display_new_player',
-                            'new_player_username': newPlayer.username,
-                            'ws_event_for_scoped_user': 'False',
+                            'type': 'displayNewPlayer',
+                            'newPlayerUsername': newPlayer.username,
+                            'wsEventForScopedUser': 'False',
                         }
                     )
                     async_to_sync(self.channel_layer.group_discard)(
@@ -174,56 +179,56 @@ class ChallengeConsumer(WebsocketConsumer):
                     
                     
     #send new player to everyone still in the arena the update the available players
-    def display_new_player(self, event):
-        if event['ws_event_for_scoped_user'] == 'True':
+    def displayNewPlayer(self, event):
+        if event['wsEventForScopedUser'] == 'True':
             self.send(text_data=json.dumps({
-                    'message': event['new_player_username'],
-                    'messageType': 'new_player',
+                    'newPlayerUsername': event['newPlayerUsername'],
+                    'messageType': 'newPlayer',
                     'addToPossibleOpponents': 'False',
             }))
         else:
-            if event['new_player_username'] != self.scope['user'].username:
+            if event['newPlayerUsername'] != self.scope['user'].username:
                 self.send(text_data=json.dumps({
-                    'message': event['new_player_username'],
-                    'messageType': 'new_player',
+                    'newPlayerUsername': event['newPlayerUsername'],
+                    'messageType': 'newPlayer',
                     'addToPossibleOpponents': 'True',
                 }))
 
     # Receive message from accepting player
-    def accept_player(self, event):
-        accepting_player = event['accepting_player']
-        accepted_player = event['accepted_player']
-        new_game_id = event['new_game_id']
+    def acceptPlayer(self, event):
+        acceptingPlayer = event['acceptingPlayer']
+        acceptedPlayer = event['acceptedPlayer']
+        newGameId = event['newGameId']
         username = self.scope['user'].username
 
-        if (username == accepted_player):
+        if (username == acceptedPlayer):
             # Send message to WebSocket
             self.send(text_data=json.dumps({
-                'message': accepting_player,
+                'newOpponent': acceptingPlayer,
                 'messageType': 'accept',
-                'gameId': new_game_id
+                'gameId': newGameId
             }))
         else:
-            if username == accepting_player:
+            if username == acceptingPlayer:
                 # Send message to WebSocket
                 self.send(text_data=json.dumps({
-                    'message': accepted_player,
+                    'newOpponent': acceptedPlayer,
                     'messageType': 'accept',
-                    'gameId': new_game_id
+                    'gameId': newGameId
                 }))
 
     
 
     # Receive message from challenging player
-    def challenge_player(self, event):
-        challenging_player = event['challenging_player']
-        challenged_player = event['challenged_player']
+    def challengePlayer(self, event):
+        challengingPlayer = event['challengingPlayer']
+        challengedPlayer = event['challengedPlayer']
         username = self.scope['user'].username
 
-        if (username == challenged_player):
+        if (username == challengedPlayer):
             # Send message to WebSocket
             self.send(text_data=json.dumps({
-                'message': challenging_player,
+                'challengingPlayer': challengingPlayer,
                 'messageType': 'challenge'
             }))
         

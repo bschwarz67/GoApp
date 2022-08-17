@@ -27,7 +27,7 @@
 				<option value="{{ x }}">{{ x }}</option>
 			{% endfor %}
 		</select>
-		<input id="opponent-challenge" type="submit" value="Challenge">
+		<input id="opponent-challenge" type="submit" value="challenge">
 
 		<br>
 		<br>
@@ -37,7 +37,7 @@
 				<option value="{{ x }}" id="{{ x }}">{{ x }}</option>
 			{% endfor %}
 		</select>
-		<input id="opponent-accept" type="submit" value="Accept">
+		<input id="opponent-accept" type="submit" value="accept">
 
 		<br>
 		<br>
@@ -48,17 +48,17 @@
 			{% endfor %}
 		</select>
 
-		{{ challengingPlayers|json_script:"challengingPlayersList" }}
-		<script id="challengingPlayersList"></script>
+		{{ challengingPlayers|json_script:"challenging-players" }}
+		<script id="challenging-players"></script>
 
-		{{ challengedPlayers|json_script:"challengedPlayersList" }}
-		<script id="challengedPlayersList"></script>
+		{{ challengedPlayers|json_script:"challenged-players" }}
+		<script id="challenged-players"></script>
 
-		{{ opponents|json_script:"opponentsList" }}
-		<script id="opponentsList"></script>
+		{{ opponents|json_script:"opponents" }}
+		<script id="opponents"></script>
 
-		{{ ids|json_script:"idsList" }}
-		<script id="idsList"></script>
+		{{ ids|json_script:"ids" }}
+		<script id="ids"></script>
 
 		{{ user.color|json_script:"color" }}
 		<script id="color"></script>
@@ -69,16 +69,15 @@
 
 
 			{% if user.is_authenticated %}
-			console.log("authenticated!");
 			var perfEntries = performance.getEntriesByType("navigation");
 
 			if (perfEntries[0].type === "back_forward") {
     			location.reload(true);
 			}
 
-			let challengedPlayers = JSON.parse(document.getElementById('challengedPlayersList').textContent);
-			let opponents = JSON.parse(document.getElementById('opponentsList').textContent);
-			let challengingPlayers = JSON.parse(document.getElementById('challengingPlayersList').textContent);
+			let challengedPlayers = JSON.parse(document.getElementById('challenged-players').textContent);
+			let opponents = JSON.parse(document.getElementById('opponents').textContent);
+			let challengingPlayers = JSON.parse(document.getElementById('challenging-players').textContent);
 			
 
 			//pulls player color into javascript
@@ -101,19 +100,18 @@
 				const data = JSON.parse(e.data);
 				if(data.messageType == 'challenge') {
 					var newOption = document.createElement('option');
-					newOption.value = data.message;
-					newOption.text = data.message;
-					newOption.id = data.message;
+					newOption.value = data.challengingPlayer;
+					newOption.text = data.challengingPlayer;
+					newOption.id = data.challengingPlayer;
 					document.querySelector('#invitations').add(newOption);
 				}
 				else if (data.messageType == 'accept') { 
 					var newOption = document.createElement('option');
-					newOption.value = data.message;
-					newOption.text = data.message;
+					newOption.value = data.newOpponent;
+					newOption.text = data.newOpponent;
 					newOption.id = data.gameId;
 					newOption.onclick = function(){redirectToBoard(this)};
-					//newOption.onclick = redirectToBoard(e);
-					var deletedOption = document.querySelector('#invitations').options.namedItem(data.message);
+					var deletedOption = document.querySelector('#invitations').options.namedItem(data.newOpponent);
 					if(deletedOption != null) {
 						document.querySelector('#invitations').options.remove(deletedOption.index);
 					}
@@ -121,9 +119,9 @@
 				}
 				else {
 					var newOption = document.createElement('option');
-					newOption.value = data.message;
-					newOption.text = data.message;
-					newOption.id = data.message;
+					newOption.value = data.newPlayerUsername;
+					newOption.text = data.newPlayerUsername;
+					newOption.id = data.newPlayerUsername;
 					document.querySelector('#opponent-select').add(newOption);
 				}
         	};
@@ -134,28 +132,22 @@
 
 
 			document.querySelector('#opponent-challenge').onclick = function(e) {
-				console.log("challenging....")
-
-				let challengedPlayers = JSON.parse(document.getElementById('challengedPlayersList').textContent);
-				let opponents = JSON.parse(document.getElementById('opponentsList').textContent);
 				
 				const messageInputDom = document.querySelector('#opponent-select');
-				const playerToChallenge = messageInputDom.options[messageInputDom.selectedIndex].value;
-				
-				
-				
+				if(messageInputDom.selectedIndex != -1) {
+					const playerToChallenge = messageInputDom.options[messageInputDom.selectedIndex].value;
+					
 
-				if(!challengedPlayers.includes(playerToChallenge) && !opponents.includes(playerToChallenge)){
-					challengedPlayers.push(playerToChallenge);
-					document.getElementById('challengedPlayersList').textContent = JSON.stringify(challengedPlayers);
-					console.log("send message to socket...")
-					challengeSocket.send(JSON.stringify({
-						'message': playerToChallenge,
-						'messageType': 'challenge'
-					}));
-					messageInputDom.value = '';
+					if(!challengedPlayers.includes(playerToChallenge) && !opponents.includes(playerToChallenge)){
+						challengedPlayers.push(playerToChallenge);
+						document.getElementById('challenged-players').textContent = JSON.stringify(challengedPlayers);
+						challengeSocket.send(JSON.stringify({
+							'selectedPlayer': playerToChallenge,
+							'messageType': 'challenge'
+						}));
+						messageInputDom.value = '';
+					}
 				}
-
 			};
 
 			
@@ -182,23 +174,20 @@
 			};
 
 
-
-			//TODO write in handler for when no player is selected to accept
-
         	document.querySelector('#opponent-accept').onclick = function(e) {
-        		let opponents = JSON.parse(document.getElementById('opponentsList').textContent);
     			const messageInputDom = document.querySelector('#invitations');
-				const playerToAccept = messageInputDom.options[messageInputDom.selectedIndex].value;
+				if(messageInputDom.selectedIndex != -1) {
+					const playerToAccept = messageInputDom.options[messageInputDom.selectedIndex].value;
+					
+					opponents.push(playerToAccept);
+					document.getElementById('opponents').textContent = JSON.stringify(opponents);
+					challengeSocket.send(JSON.stringify({
+						'selectedPlayer': playerToAccept,
+						'messageType': 'accept'
 
-				
-				opponents.push(playerToAccept);
-				document.getElementById('opponentsList').textContent = JSON.stringify(opponents);
-				challengeSocket.send(JSON.stringify({
-					'message': playerToAccept,
-					'messageType': 'accept'
-
-				}));
-				messageInputDom.value = '';
+					}));
+					messageInputDom.value = '';
+				}
         	};
 
 			{% else %}
@@ -218,14 +207,14 @@
 			challengeSocket.onmessage = function(e) {
 				const data = JSON.parse(e.data);
 				if(data.addToPossibleOpponents == 'False') {
-					window.location.href= `/home/logNewPlayerIn/${data.message}`;
+					window.location.href= `/home/logNewPlayerIn/${data.newPlayerUsername}`;
 				
 				}
 				else {
 					var newOption = document.createElement('option');
-					newOption.value = data.message;
-					newOption.text = data.message;
-					newOption.id = data.message;
+					newOption.value = data.newPlayerUsername;
+					newOption.text = data.newPlayerUsername;
+					newOption.id = data.newPlayerUsername;
 					document.querySelector('#opponent-select').add(newOption);
 				}
 				

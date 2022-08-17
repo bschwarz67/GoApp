@@ -83,25 +83,22 @@
 				
 				{% if x == "1" %}
 					<div class="piece-input-container">	
-						<!-- <input type="radio" name="coordinate" value="{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}"> -->
-						<div onclick=setPieceDown(this) style="background-color:grey;border-color:grey" for="coordinate_{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}"></div>
+						<div onclick=setPieceDown(this) style="background-color:grey;border-color:grey" for="coordinate-{{ forloop.counter0 }}" id="coordinate-{{ forloop.counter0 }}"></div>
 					</div>
 				{% elif x == "2" %}
 					<div class="piece-input-container">	
-						<!--<input type="radio" name="coordinate" value="{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}">-->
-						<div onclick=setPieceDown(this) style="background-color:black;border-color:black" for="coordinate_{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}"></div>
+						<div onclick=setPieceDown(this) style="background-color:black;border-color:black" for="coordinate-{{ forloop.counter0 }}" id="coordinate-{{ forloop.counter0 }}"></div>
 					</div>
 				{% else %}
 					<div class="piece-input-container">	
-						<!--<input type="radio" name="coordinate" value="{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}">-->
-						<div onclick=setPieceDown(this) style="background-color:transparent;border-color:transparent" for="coordinate_{{ forloop.counter0 }}" id="coordinate_{{ forloop.counter0 }}"></div>
+						<div onclick=setPieceDown(this) style="background-color:transparent;border-color:transparent" for="coordinate-{{ forloop.counter0 }}" id="coordinate-{{ forloop.counter0 }}"></div>
 					</div>
 				{% endif %}
 
 			{% endfor %}
 			<div id="submit-container">
 				<div id="submit-error"></div>
-				<input type="button" value="Play" id="play">
+				<input type="button" value="play" id="play">
 			</div>
 			
 		</form>
@@ -117,17 +114,16 @@
 
 
 
-		<h1>{{ request.path }}</h1>
 
 
-		{{ game|json_script:"viewsGame" }}
-		<script id="viewsGame"></script>
+		{{ game|json_script:"views-game" }}
+		<script id="views-game"></script>
 
 		
 		
 		<script>
 			//pulls game into javascript
-			let game = JSON.parse(document.getElementById('viewsGame').textContent);
+			let game = JSON.parse(document.getElementById('views-game').textContent);
 
 			let selected = "";
 
@@ -145,17 +141,17 @@
 			playSocket.onmessage = function(e) {
 				const data = JSON.parse(e.data);
 				
-				if(data.message_type == 'played_against_opponent') {
+				if(data.messageType == 'playedAgainstOpponent') {
 					
-					let coordinatesTaken = data.coordinates_taken.split(/\[|\]|,\s/)
-					if(data.played_against == game.whitePlayer) {
-						let playedLabel = document.querySelector(`div[id=coordinate_${data.coordinate_played}]`);
+					let coordinatesTaken = data.coordinatesTaken.split(/\[|\]|,\s/)
+					if(data.playedAgainst == game.whitePlayer) {
+						let playedLabel = document.querySelector(`div[id=coordinate-${data.coordinatePlayed}]`);
 						playedLabel.style.backgroundColor = "black";
 						playedLabel.style.borderColor = "black";
-						game.piecePositions = game.piecePositions.substring(0, parseInt(data.coordinate_played)) + "2" + game.piecePositions.substring(parseInt(data.coordinate_played) + 1);
+						game.piecePositions = game.piecePositions.substring(0, parseInt(data.coordinatePlayed)) + "2" + game.piecePositions.substring(parseInt(data.coordinatePlayed) + 1);
 						for(x = 0; x < coordinatesTaken.length; x++) {
 							if(coordinatesTaken[x] != "") {
-								let takenLabel = document.querySelector(`div[id=coordinate_${coordinatesTaken[x]}]`);
+								let takenLabel = document.querySelector(`div[id=coordinate-${coordinatesTaken[x]}]`);
 								takenLabel.style.backgroundColor = "transparent";
 								takenLabel.style.borderColor = "transparent";
 								game.piecePositions = game.piecePositions.substring(0, parseInt(coordinatesTaken[x])) + "0" + game.piecePositions.substring(parseInt(coordinatesTaken[x]) + 1);
@@ -163,13 +159,13 @@
 						}
 					}
 					else {
-						let playedLabel = document.querySelector(`div[id=coordinate_${data.coordinate_played}]`);
+						let playedLabel = document.querySelector(`div[id=coordinate-${data.coordinatePlayed}]`);
 						playedLabel.style.backgroundColor = "grey";
 						playedLabel.style.borderColor = "grey";
-						game.piecePositions = game.piecePositions.substring(0, parseInt(data.coordinate_played)) + "1" + game.piecePositions.substring(parseInt(data.coordinate_played) + 1);
+						game.piecePositions = game.piecePositions.substring(0, parseInt(data.coordinatePlayed)) + "1" + game.piecePositions.substring(parseInt(data.coordinatePlayed) + 1);
 						for(x = 0; x < coordinatesTaken.length; x++) {
 							if(coordinatesTaken[x] != "") {
-								let takenLabel = document.querySelector(`div[id=coordinate_${coordinatesTaken[x]}]`);
+								let takenLabel = document.querySelector(`div[id=coordinate-${coordinatesTaken[x]}]`);
 								takenLabel.style.backgroundColor = "transparent";
 								takenLabel.style.borderColor = "transparent";
 								game.piecePositions = game.piecePositions.substring(0, parseInt(coordinatesTaken[x])) + "0" + game.piecePositions.substring(parseInt(coordinatesTaken[x]) + 1);
@@ -178,17 +174,17 @@
 					}
 				}
 
-				else if(data.message_type == 'played') {
+				else if(data.messageType == 'played') {
 
-					let coordinatesTaken = data.coordinates_taken.split(/\[|\]|,\s/)
-					if(data.played_against == game.whitePlayer) {
-						let playedLabel = document.querySelector(`div[id=coordinate_${data.coordinate_played}]`);
+					let coordinatesTaken = data.coordinatesTaken.split(/\[|\]|,\s/)
+					if(data.playedAgainst == game.whitePlayer) {
+						let playedLabel = document.querySelector(`div[id=coordinate-${data.coordinatePlayed}]`);
 						playedLabel.style.backgroundColor = "black";
 						playedLabel.style.borderColor = "black";
-						game.piecePositions = game.piecePositions.substring(0, parseInt(data.coordinate_played)) + "2" + game.piecePositions.substring(parseInt(data.coordinate_played) + 1);
+						game.piecePositions = game.piecePositions.substring(0, parseInt(data.coordinatePlayed)) + "2" + game.piecePositions.substring(parseInt(data.coordinatePlayed) + 1);
 						for(x = 0; x < coordinatesTaken.length; x++) {
 							if(coordinatesTaken[x] != "") {
-								let takenLabel = document.querySelector(`div[id=coordinate_${coordinatesTaken[x]}]`);
+								let takenLabel = document.querySelector(`div[id=coordinate-${coordinatesTaken[x]}]`);
 								takenLabel.style.backgroundColor = "transparent";
 								takenLabel.style.borderColor = "transparent";
 								game.piecePositions = game.piecePositions.substring(0, parseInt(coordinatesTaken[x])) + "0" + game.piecePositions.substring(parseInt(coordinatesTaken[x]) + 1);
@@ -196,13 +192,13 @@
 						}
 					}
 					else {
-						let playedLabel = document.querySelector(`div[id=coordinate_${data.coordinate_played}]`);
+						let playedLabel = document.querySelector(`div[id=coordinate-${data.coordinatePlayed}]`);
 						playedLabel.style.backgroundColor = "grey";
 						playedLabel.style.borderColor = "grey";
-						game.piecePositions = game.piecePositions.substring(0, parseInt(data.coordinate_played)) + "1" + game.piecePositions.substring(parseInt(data.coordinate_played) + 1);
+						game.piecePositions = game.piecePositions.substring(0, parseInt(data.coordinatePlayed)) + "1" + game.piecePositions.substring(parseInt(data.coordinatePlayed) + 1);
 						for(x = 0; x < coordinatesTaken.length; x++) {
 							if(coordinatesTaken[x] != "") {
-								let takenLabel = document.querySelector(`div[id=coordinate_${coordinatesTaken[x]}]`);
+								let takenLabel = document.querySelector(`div[id=coordinate-${coordinatesTaken[x]}]`);
 								takenLabel.style.backgroundColor = "transparent";
 								takenLabel.style.borderColor = "transparent";
 								game.piecePositions = game.piecePositions.substring(0, parseInt(coordinatesTaken[x])) + "0" + game.piecePositions.substring(parseInt(coordinatesTaken[x]) + 1);
@@ -219,7 +215,7 @@
 					let errorNode = document.createElement("div");
 					errorNode.style.width = "160px";
 					errorNode.style.height = "20px";
-					errorNode.textContent = data.message;
+					errorNode.textContent = data.errorMessage;
 					errorNode.style.color = "red";
 					document.querySelector("#submit-container").insertBefore(errorNode, document.querySelector("#play"));
 				
@@ -245,17 +241,17 @@
 				
 				for(x = 0; x < game.piecePositions.length; x++) {
 					if(game.piecePositions[x] == "0") {
-						let setLabel = document.querySelector(`div[id=coordinate_${x}]`);
+						let setLabel = document.querySelector(`div[id=coordinate-${x}]`);
 						setLabel.style.backgroundColor = "transparent";
 						setLabel.style.borderColor = "transparent";
 					}
 					else if(game.piecePositions[x] == "1") {
-						let setLabel = document.querySelector(`div[id=coordinate_${x}]`);
+						let setLabel = document.querySelector(`div[id=coordinate-${x}]`);
 						setLabel.style.backgroundColor = "grey";
 						setLabel.style.borderColor = "grey";
 					}
 					else {
-						let setLabel = document.querySelector(`div[id=coordinate_${x}]`);
+						let setLabel = document.querySelector(`div[id=coordinate-${x}]`);
 						setLabel.style.backgroundColor = "black";
 						setLabel.style.borderColor = "black";
 					}
@@ -290,12 +286,13 @@
 
 				if(selected != "") {
 					let playedLabel = document.querySelector(`div[id=${selected.id}]`);
+					let coordinate = playedLabel.id.split("-")[1];
 					if(game.whitePlayer == game.playerInScope) {
 						playSocket.send(JSON.stringify({
 						'playedAgainst': game.blackPlayer,
 						'messageType': 'play',
-						'coordinate': playedLabel.id.split("_")[1],
-						'gameID': game.id
+						'coordinate': coordinate,
+						'gameId': game.id
 
 						}));
 					}
@@ -303,8 +300,8 @@
 						playSocket.send(JSON.stringify({
 						'playedAgainst': game.whitePlayer,
 						'messageType': 'play',
-						'coordinate': playedLabel.id.split("_")[1],
-						'gameID': game.id
+						'coordinate': coordinate,
+						'gameId': game.id
 
 						}));
 					}

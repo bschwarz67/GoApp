@@ -98,42 +98,42 @@ class Check:
         self.player.previousPiecePositions = self.game.piecePositions
         self.player.save()
 
-    def checkTakes(self, ycoordinate, xcoordinate):
-        self.visited.add("{}{}".format(ycoordinate, xcoordinate))
-        self.visitedThisCheck.add("{}{}".format(ycoordinate, xcoordinate))
+    def checkTakes(self, yCoordinate, xCoordinate):
+        self.visited.add("{}{}".format(yCoordinate, xCoordinate))
+        self.visitedThisCheck.add("{}{}".format(yCoordinate, xCoordinate))
 
         exposedToLiberties = False
 
-        if ycoordinate != 0:
-            if "{}{}".format(ycoordinate - 1, xcoordinate) not in self.visited:
-                if self.position2dList[ycoordinate - 1][xcoordinate] == '0':
+        if yCoordinate != 0:
+            if "{}{}".format(yCoordinate - 1, xCoordinate) not in self.visited:
+                if self.position2dList[yCoordinate - 1][xCoordinate] == '0':
                     exposedToLiberties = True
-                if self.position2dList[ycoordinate - 1][xcoordinate] != self.color:
-                    if self.checkTakes(ycoordinate - 1, xcoordinate) == True:
+                if self.position2dList[yCoordinate - 1][xCoordinate] != self.color:
+                    if self.checkTakes(yCoordinate - 1, xCoordinate) == True:
                         exposedToLiberties = True
 
-        if ycoordinate != 6:
-            if "{}{}".format(ycoordinate + 1, xcoordinate) not in self.visited:
-                if self.position2dList[ycoordinate + 1][xcoordinate] == '0':
+        if yCoordinate != 6:
+            if "{}{}".format(yCoordinate + 1, xCoordinate) not in self.visited:
+                if self.position2dList[yCoordinate + 1][xCoordinate] == '0':
                     exposedToLiberties = True
-                if self.position2dList[ycoordinate + 1][xcoordinate] != self.color:
-                    if self.checkTakes(ycoordinate + 1, xcoordinate) == True:
+                if self.position2dList[yCoordinate + 1][xCoordinate] != self.color:
+                    if self.checkTakes(yCoordinate + 1, xCoordinate) == True:
                         exposedToLiberties = True
 
-        if xcoordinate != 0:
-            if "{}{}".format(ycoordinate, xcoordinate - 1) not in self.visited:
-                if self.position2dList[ycoordinate][xcoordinate - 1] == '0':
+        if xCoordinate != 0:
+            if "{}{}".format(yCoordinate, xCoordinate - 1) not in self.visited:
+                if self.position2dList[yCoordinate][xCoordinate - 1] == '0':
                     exposedToLiberties = True
-                if self.position2dList[ycoordinate][xcoordinate - 1] != self.color:
-                    if self.checkTakes(ycoordinate, xcoordinate - 1) == True:
+                if self.position2dList[yCoordinate][xCoordinate - 1] != self.color:
+                    if self.checkTakes(yCoordinate, xCoordinate - 1) == True:
                         exposedToLiberties = True
 
-        if xcoordinate != 6:
-            if "{}{}".format(ycoordinate, xcoordinate + 1) not in self.visited:
-                if self.position2dList[ycoordinate][xcoordinate + 1] == '0':
+        if xCoordinate != 6:
+            if "{}{}".format(yCoordinate, xCoordinate + 1) not in self.visited:
+                if self.position2dList[yCoordinate][xCoordinate + 1] == '0':
                     exposedToLiberties = True
-                if self.position2dList[ycoordinate][xcoordinate + 1] != self.color:
-                    if self.checkTakes(ycoordinate, xcoordinate + 1) == True:
+                if self.position2dList[yCoordinate][xCoordinate + 1] != self.color:
+                    if self.checkTakes(yCoordinate, xCoordinate + 1) == True:
                         exposedToLiberties = True
 
             
