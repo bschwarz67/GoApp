@@ -142,8 +142,7 @@
 				const data = JSON.parse(e.data);
 				
 				if(data.messageType == 'playedAgainstOpponent') {
-					
-					let coordinatesTaken = data.coordinatesTaken.split(/\[|\]|,\s/)
+					let coordinatesTaken = data.coordinatesTaken.split(/\[|\]|,\s/);
 					if(data.playedAgainst == game.whitePlayer) {
 						let playedLabel = document.querySelector(`div[id=coordinate-${data.coordinatePlayed}]`);
 						playedLabel.style.backgroundColor = "black";
@@ -175,8 +174,7 @@
 				}
 
 				else if(data.messageType == 'played') {
-
-					let coordinatesTaken = data.coordinatesTaken.split(/\[|\]|,\s/)
+					let coordinatesTaken = data.coordinatesTaken.split(/\[|\]|,\s/);
 					if(data.playedAgainst == game.whitePlayer) {
 						let playedLabel = document.querySelector(`div[id=coordinate-${data.coordinatePlayed}]`);
 						playedLabel.style.backgroundColor = "black";
@@ -202,6 +200,24 @@
 								takenLabel.style.backgroundColor = "transparent";
 								takenLabel.style.borderColor = "transparent";
 								game.piecePositions = game.piecePositions.substring(0, parseInt(coordinatesTaken[x])) + "0" + game.piecePositions.substring(parseInt(coordinatesTaken[x]) + 1);
+							}
+						}
+						if(data.hasOwnProperty('coordinatePlayedComputer')){
+							console.log('coordinate played: ' + data.coordinatePlayedComputer);
+							let playedLabel = document.querySelector(`div[id=coordinate-${data.coordinatePlayedComputer}]`);
+							playedLabel.style.backgroundColor = "black";
+							playedLabel.style.borderColor = "black";
+							game.piecePositions = game.piecePositions.substring(0, parseInt(data.coordinatePlayedComputer)) + "2" + game.piecePositions.substring(parseInt(data.coordinatePlayedComputer) + 1);
+						}
+						if(data.hasOwnProperty('coordinatesTakenComputer')) {
+							let coordinatesTakenComputer = data.coordinatesTakenComputer.split(/\[|\]|,\s/);
+							for(x = 0; x < coordinatesTakenComputer.length; x++) {
+								if(coordinatesTakenComputer[x] != "") {
+									let takenLabel = document.querySelector(`div[id=coordinate-${coordinatesTakenComputer[x]}]`);
+									takenLabel.style.backgroundColor = "transparent";
+									takenLabel.style.borderColor = "transparent";
+									game.piecePositions = game.piecePositions.substring(0, parseInt(coordinatesTakenComputer[x])) + "0" + game.piecePositions.substring(parseInt(coordinatesTakenComputer[x]) + 1);
+								}
 							}
 						}
 					}

@@ -54,6 +54,8 @@ class ChallengeConsumer(WebsocketConsumer):
                 newGame.save()
                 selectedPlayer.challengedPlayers.remove(actingPlayer)
                 selectedPlayer.opponents.add(actingPlayer)
+
+                
                 if selectedPlayer.challengingPlayers.contains(actingPlayer):
                     selectedPlayer.challengingPlayers.remove(actingPlayer)
                 actingPlayer.opponents.add(selectedPlayer)
@@ -71,19 +73,43 @@ class ChallengeConsumer(WebsocketConsumer):
                     }
                 )
             else:
+
+
+                if selectedPlayer.username == 'demo':
+                    if not selectedPlayer.opponents.contains(actingPlayer) and not actingPlayer.opponents.contains(selectedPlayer):
+
+                        newGame = Game()
+                        newGame.whitePlayer = actingPlayer
+                        newGame.blackPlayer = selectedPlayer
+                        newGame.movingPlayer = actingPlayer
+                        newGame.save()
+                        selectedPlayer.opponents.add(actingPlayer)
+                        actingPlayer.opponents.add(selectedPlayer)
+
+                        async_to_sync(self.channel_layer.group_send)(
+                        player_group,
+                            {
+                                'type': 'acceptPlayer',
+                                'acceptingPlayer': actingPlayer.username,
+                                'acceptedPlayer': selectedPlayer.username,
+                                'newGameId': newGame.id
+                            }
+                        )
                 
-                selectedPlayer.challengingPlayers.add(actingPlayer)
-                actingPlayer.challengedPlayers.add(selectedPlayer)
+                else:
                 
-                # Send challenge message to challenged player
-                async_to_sync(self.channel_layer.group_send)(
-                    player_group,
-                    {
-                        'type': 'challengePlayer',
-                        'challengingPlayer': actingPlayer.username,
-                        'challengedPlayer' : selectedPlayer.username
-                    }
-                )
+                    selectedPlayer.challengingPlayers.add(actingPlayer)
+                    actingPlayer.challengedPlayers.add(selectedPlayer)
+                    
+                    # Send challenge message to challenged player
+                    async_to_sync(self.channel_layer.group_send)(
+                        player_group,
+                        {
+                            'type': 'challengePlayer',
+                            'challengingPlayer': actingPlayer.username,
+                            'challengedPlayer' : selectedPlayer.username
+                        }
+                    )
 
 
             #get out of group the player you just challenged

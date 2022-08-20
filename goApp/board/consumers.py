@@ -1,4 +1,5 @@
 import json
+import random
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 from home.models import Player
@@ -47,10 +48,8 @@ class PlayConsumer(WebsocketConsumer):
             if scopedUsername == game.whitePlayer.username:
 
                 opponent = game.blackPlayer
-
                 checker = checkPosition.Check(game, player, coordinateInt, '1')
                 result = checker.checkPlay()
-
                 inverseChecker = checkPosition.Check(game, opponent, coordinateInt, '1')
                 inverseResult = inverseChecker.checkPlay()
 
@@ -66,24 +65,90 @@ class PlayConsumer(WebsocketConsumer):
                         'messageType': 'invalidPosition'
                     }))
                 else:
-                    checker.finalizeNewMove()
-                    result.pop(0)
-                    for x in result:
-                        coordinateInt = 7 * int(list(x)[0]) + int(list(x)[1])
-                        coordinatesTaken.append(coordinateInt)
+                    if opponent.username == 'demo':
+                        availableCoordinates = []
+                        checker.finalizeNewMove()
+                        result.pop(0)
+                        for x in result:
+                            coordinateInt = 7 * int(list(x)[0]) + int(list(x)[1])
+                            coordinatesTaken.append(coordinateInt)
+                        jsonCoordinatesTaken = json.dumps(coordinatesTaken)
 
-                    jsonCoordinatesTaken = json.dumps(coordinatesTaken)
-                    
-                    async_to_sync(self.channel_layer.group_send)(
-                        self.player_group,
-                        {
-                            'type': 'play',
-                            'playedAgainst': playedAgainst,
-                            'gameId': gameId,
-                            'coordinatePlayed': coordinate,
-                            'coordinatesTaken': jsonCoordinatesTaken
-                        }
-                    )
+
+                        for x in range(len(game.piecePositions)):
+                            if game.piecePositions[x] == '0':
+                                availableCoordinates.append(x)
+
+
+                        validPlayFound = False
+
+
+                        while len(availableCoordinates) != 0 and validPlayFound == False:
+                            coordinateComputer = random.choice(availableCoordinates)
+                            coordinateIntComputer = int(coordinateComputer)
+                            checker = checkPosition.Check(game, opponent, coordinateIntComputer, '2')
+                            result = checker.checkPlay()
+                            inverseChecker = checkPosition.Check(game, player, coordinateIntComputer, '2')
+                            inverseResult = inverseChecker.checkPlay()
+
+                            if result[0] == False or (len(inverseResult) > 1 and len(result) == 1):
+                                availableCoordinates.remove(coordinateComputer)
+                            else:
+                                validPlayFound = True
+                            
+                        if validPlayFound == True:
+                            coordinatesTakenComputer = []
+                            checker.finalizeNewMove()
+                            result.pop(0)
+                            for x in result:
+                                coordinateIntComputer = 7 * int(list(x)[0]) + int(list(x)[1])
+                                coordinatesTakenComputer.append(coordinateIntComputer)
+
+                            jsonCoordinatesTakenComputer = json.dumps(coordinatesTakenComputer)
+                            
+                            async_to_sync(self.channel_layer.group_send)(
+                                self.player_group,
+                                {
+                                    'type': 'play',
+                                    'playedAgainst': playedAgainst,
+                                    'gameId': gameId,
+                                    'coordinatePlayed': coordinate,
+                                    'coordinatesTaken': jsonCoordinatesTaken,
+                                    'coordinatePlayedComputer': coordinateComputer,
+                                    'coordinatesTakenComputer': jsonCoordinatesTakenComputer
+                                }
+                            )
+                        else:
+                            async_to_sync(self.channel_layer.group_send)(
+                            self.player_group,
+                            {
+                                'type': 'play',
+                                'playedAgainst': playedAgainst,
+                                'gameId': gameId,
+                                'coordinatePlayed': coordinate,
+                                'coordinatesTaken': jsonCoordinatesTaken
+                            }
+                        )
+
+                    else:
+                        checker.finalizeNewMove()
+                        result.pop(0)
+                        for x in result:
+                            coordinateInt = 7 * int(list(x)[0]) + int(list(x)[1])
+                            coordinatesTaken.append(coordinateInt)
+
+                        jsonCoordinatesTaken = json.dumps(coordinatesTaken)
+                        
+                        async_to_sync(self.channel_layer.group_send)(
+                            self.player_group,
+                            {
+                                'type': 'play',
+                                'playedAgainst': playedAgainst,
+                                'gameId': gameId,
+                                'coordinatePlayed': coordinate,
+                                'coordinatesTaken': jsonCoordinatesTaken
+                            }
+                        )
             
             else:
 
@@ -143,8 +208,7 @@ class PlayConsumer(WebsocketConsumer):
 
             
 
-    #havent tested cases where player is in one game but someone plays on them in another game, probably will temporarily change
-    #thier board, have to write a check for this. need to check this
+    
     def play(self, event):
 
         
@@ -153,16 +217,26 @@ class PlayConsumer(WebsocketConsumer):
                 'coordinatePlayed': event['coordinatePlayed'],
                 'messageType': 'playedAgainstOpponent',
                 'playedAgainst': event['playedAgainst'],
-                'coordinatesTaken': event['coordinatesTaken']
+                'coordinatesTaken': event['coordinatesTaken'],
             }))
             
         else:
-            self.send(text_data=json.dumps({
-                'coordinatePlayed': event['coordinatePlayed'],
-                'coordinatesTaken': event['coordinatesTaken'],
-                'messageType': 'played',
-                'playedAgainst': event['playedAgainst']
-            }))
+            if 'coordinatePlayedComputer' in event and 'coordinatesTakenComputer' in event:
+                self.send(text_data=json.dumps({
+                    'coordinatePlayed': event['coordinatePlayed'],
+                    'coordinatesTaken': event['coordinatesTaken'],
+                    'messageType': 'played',
+                    'playedAgainst': event['playedAgainst'],
+                    'coordinatePlayedComputer': event['coordinatePlayedComputer'],
+                    'coordinatesTakenComputer': event['coordinatesTakenComputer']
+                }))
+            else:
+                self.send(text_data=json.dumps({
+                    'coordinatePlayed': event['coordinatePlayed'],
+                    'coordinatesTaken': event['coordinatesTaken'],
+                    'messageType': 'played',
+                    'playedAgainst': event['playedAgainst'],
+                }))
                     
 
 

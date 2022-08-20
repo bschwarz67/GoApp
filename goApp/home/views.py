@@ -24,10 +24,8 @@ def index(request):
 
 		for player in Player.objects.all():
 			timeSinceLastOutOfGameAction = timezone.now() - player.lastOutOfGameAction
-			if timeSinceLastOutOfGameAction.days < 1:
-				if timeSinceLastOutOfGameAction.seconds <= 1200 and not player.username == request.user.username:
+			if (timeSinceLastOutOfGameAction.days < 1 and timeSinceLastOutOfGameAction.seconds <= 1200 and not player.username == request.user.username) or player.username == 'demo':
 					availablePlayers.append(player.username)
-		
 		
 		for x in Player.objects.all():
 			ids.append(x.id)
@@ -67,10 +65,10 @@ def index(request):
 
 	else:
 		availablePlayers = []
+
 		for player in Player.objects.all():
 			timeSinceLastOutOfGameAction = timezone.now() - player.lastOutOfGameAction
-			if timeSinceLastOutOfGameAction.days < 1:
-				if timeSinceLastOutOfGameAction.seconds <= 1200:
+			if (timeSinceLastOutOfGameAction.days < 1 and timeSinceLastOutOfGameAction.seconds <= 1200 and not player.username == request.user.username) or player.username == 'demo':
 					availablePlayers.append(player.username)
 		context = {
 			'availablePlayers': availablePlayers,
