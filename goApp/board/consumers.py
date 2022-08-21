@@ -153,10 +153,8 @@ class PlayConsumer(WebsocketConsumer):
             else:
 
                 opponent = game.whitePlayer
-
                 checker = checkPosition.Check(game, player, coordinateInt, '2')
                 result = checker.checkPlay()
-
                 inverseChecker = checkPosition.Check(game, opponent, coordinateInt, '2')
                 inverseResult = inverseChecker.checkPlay()
 
