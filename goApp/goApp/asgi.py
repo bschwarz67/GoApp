@@ -14,12 +14,14 @@ from channels.sessions import SessionMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
 from django.urls import path
+
+asgi_application = get_asgi_application()
+
 import home.routing
 import board.routing
 
-
 application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
+    "http": asgi_application,
     "websocket": AuthMiddlewareStack(URLRouter(
             home.routing.websocket_urlpatterns +
             board.routing.websocket_urlpatterns

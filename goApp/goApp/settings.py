@@ -29,12 +29,10 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = 'home.Player'
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True;
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # Application definition
 
 INSTALLED_APPS = [
-    'board.apps.BoardConfig',
-	'home.apps.HomeConfig',
 	'accounts.apps.AccountsConfig',
 	'django.contrib.admin',
     'django.contrib.auth',
@@ -43,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 	'channels',
+    'board.apps.BoardConfig',
+	'home.apps.HomeConfig',
 ]
 
 MIDDLEWARE = [
