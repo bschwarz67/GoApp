@@ -1,2 +1,3 @@
 **/venv
 settingSecrets.py
+.env
