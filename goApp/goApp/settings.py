@@ -62,6 +62,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
+            '/app/goApp/goApp/templates/goApp',
 			'/Users/bryan/desktop/personalCodeRepo/goApp/goApp/goApp/templates/goApp',
 		],
         'APP_DIRS': True,
