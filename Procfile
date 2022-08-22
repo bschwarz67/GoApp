@@ -1,1 +1,1 @@
-web: daphne goApp.asgi:channel_layer --port $PORT --bind 0.0.0.0
+web: daphne goApp.asgi:application --port $PORT --bind 0.0.0.0
