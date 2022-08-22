@@ -8,7 +8,7 @@ https://docs.djangoproject.com/en/3.0/howto/deployment/asgi/
 """
 
 import os
-
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'goApp.settings')
 from channels.auth import AuthMiddlewareStack
 from channels.sessions import SessionMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
@@ -17,7 +17,6 @@ from django.urls import path
 import home.routing
 import board.routing
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'goApp.settings')
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
