@@ -1,5 +1,5 @@
 from django.contrib import auth
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponsePermanentRedirect
 from django.urls import reverse
 
 
