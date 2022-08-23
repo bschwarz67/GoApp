@@ -82,7 +82,6 @@ def index(request):
 
 
 def logNewPlayerIn(request, newUserUsername):
-	print(newUserUsername)
 	login(request, Player.objects.get(username=newUserUsername))
 	return HttpResponseRedirect(reverse('home:index'))
 
