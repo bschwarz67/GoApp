@@ -5,6 +5,30 @@
 			select {
 				width: 150px;
 			}
+			#opponent-select {
+				width: 150px;
+				height: 255px;
+				overflow: scroll;
+				border-style: solid;
+				border-width: 1px;
+			}
+
+			#invitations {
+				width: 150px;
+				height: 255px;
+				overflow: scroll;
+				border-style: solid;
+				border-width: 1px;
+			}
+
+			#current-games {
+				width: 150px;
+				height: 255px;
+				overflow: scroll;
+				border-style: solid;
+				border-width: 1px;
+			}
+
 		{% endblock %}
 		</style>
 	</head>
@@ -22,31 +46,31 @@
 
 
 		
-		<select id="opponent-select" size="15">
+		<div id="opponent-select">
 			{% for x in availablePlayers %}
-				<option value="{{ x }}">{{ x }}</option>
+				<div onclick="setPlayerToChallenge(this)" value="{{ x }}">{{ x }}</div>
 			{% endfor %}
-		</select>
+		</div>
 		<input id="opponent-challenge" type="submit" value="challenge">
 
 		<br>
 		<br>
 
-		<select id="invitations" size="15">
+		<div id="invitations">
 			{% for x in challengingPlayers %}
-				<option value="{{ x }}" id="{{ x }}">{{ x }}</option>
+				<div onclick="setPlayerToAccept(this)" value="{{ x }}" id="{{ x }}">{{ x }}</div>
 			{% endfor %}
-		</select>
+		</div>
 		<input id="opponent-accept" type="submit" value="accept">
 
 		<br>
 		<br>
 
-		<select id="current-games" size="15">
+		<div id="current-games">
 			{% for x in opponentObjects %}
-				<option onclick="redirectToBoard(this)" value="{{ x.value }}" id="{{ x.gameId }}">{{ x.value }}</option>
+				<div onclick="redirectToBoard(this)" value="{{ x.value }}" id="{{ x.gameId }}">{{ x.value }}</div>
 			{% endfor %}
-		</select>
+		</div>
 
 		{{ challengingPlayers|json_script:"challenging-players" }}
 		<script id="challenging-players"></script>
@@ -66,22 +90,38 @@
 
 		<script>
 
-
-
-			{% if user.is_authenticated %}
 			var perfEntries = performance.getEntriesByType("navigation");
 
 			if (perfEntries[0].type === "back_forward") {
-    			location.reload(true);
+				location.reload(true);
 			}
 
 			let challengedPlayers = JSON.parse(document.getElementById('challenged-players').textContent);
 			let opponents = JSON.parse(document.getElementById('opponents').textContent);
 			let challengingPlayers = JSON.parse(document.getElementById('challenging-players').textContent);
-			
-
-			//pulls player color into javascript
 			let playerColor = JSON.parse(document.getElementById('color').textContent);
+			let playerToAccept = "";
+			let playerToChallenge = "";
+
+			function setPlayerToAccept(event) {
+				if(playerToAccept != "") {
+					document.querySelector(`#invitations div[id=${playerToAccept}]`).style.backgroundColor = "transparent";
+				}
+				playerToAccept = event.id;
+				console.log("set to accept  " + playerToAccept);
+				event.style.backgroundColor = "#ff5500";
+			}
+
+			function setPlayerToChallenge(event) {
+				if(playerToChallenge != "") {
+					document.querySelector(`#opponent-select div[id=${playerToChallenge}]`).style.backgroundColor = "transparent";
+				}
+				playerToChallenge = event.id;
+				console.log("set to challenge  " + playerToChallenge);
+				event.style.backgroundColor = "#ff5500";
+			}
+
+			{% if user.is_authenticated %}
 
 
 			const challengeSocket = new WebSocket(
@@ -99,26 +139,30 @@
 			challengeSocket.onmessage = function(e) {
 				const data = JSON.parse(e.data);
 				if(data.messageType == 'challenge') {
-					var newOption = document.createElement('option');
+					var newOption = document.createElement('div');
 					newOption.value = data.challengingPlayer;
 					newOption.text = data.challengingPlayer;
 					newOption.id = data.challengingPlayer;
 					document.querySelector('#invitations').add(newOption);
 				}
 				else if (data.messageType == 'accept') { 
-					var newOption = document.createElement('option');
+					var newOption = document.createElement('div');
 					newOption.value = data.newOpponent;
 					newOption.text = data.newOpponent;
 					newOption.id = data.gameId;
 					newOption.onclick = function(){redirectToBoard(this)};
-					var deletedOption = document.querySelector('#invitations').options.namedItem(data.newOpponent);
+					var deletedOption = document.querySelector(`#invitations div[id=${data.newOpponent}]`);
 					if(deletedOption != null) {
-						document.querySelector('#invitations').options.remove(deletedOption.index);
+						document.querySelector('#invitations').removeChild(deletedOption);
+					}
+					if(!opponents.includes(data.newOpponent)) {
+						opponents.push(data.newOpponent);
+						document.getElementById('opponents').textContent = JSON.stringify(opponents);
 					}
 					document.querySelector('#current-games').add(newOption);
 				}
 				else {
-					var newOption = document.createElement('option');
+					var newOption = document.createElement('div');
 					newOption.value = data.newPlayerUsername;
 					newOption.text = data.newPlayerUsername;
 					newOption.id = data.newPlayerUsername;
@@ -132,21 +176,17 @@
 
 
 			document.querySelector('#opponent-challenge').onclick = function(e) {
-				
-				const messageInputDom = document.querySelector('#opponent-select');
-				if(messageInputDom.selectedIndex != -1) {
-					const playerToChallenge = messageInputDom.options[messageInputDom.selectedIndex].value;
-					
-
-					if(!challengedPlayers.includes(playerToChallenge) && !opponents.includes(playerToChallenge)){
-						challengedPlayers.push(playerToChallenge);
-						document.getElementById('challenged-players').textContent = JSON.stringify(challengedPlayers);
-						challengeSocket.send(JSON.stringify({
-							'selectedPlayer': playerToChallenge,
-							'messageType': 'challenge'
-						}));
-						messageInputDom.value = '';
-					}
+								
+				if(playerToChallenge != "" && !challengedPlayers.includes(playerToChallenge) && !opponents.includes(playerToChallenge)){
+					challengedPlayers.push(playerToChallenge);
+					document.getElementById('challenged-players').textContent = JSON.stringify(challengedPlayers);
+					challengeSocket.send(JSON.stringify({
+						'selectedPlayer': playerToChallenge,
+						'messageType': 'challenge'
+					}));
+					document.querySelector(`#opponent-select div[id=${playerToChallenge}]`).style.backgroundColor = "transparent";
+					playerToChallenge = "";
+					console.log('got past sending to websocket!!');
 				}
 			};
 
@@ -175,10 +215,7 @@
 
 
         	document.querySelector('#opponent-accept').onclick = function(e) {
-    			const messageInputDom = document.querySelector('#invitations');
-				if(messageInputDom.selectedIndex != -1) {
-					const playerToAccept = messageInputDom.options[messageInputDom.selectedIndex].value;
-					
+				if(playerToAccept != "" && !opponents.includes(playerToChallenge)) {					
 					opponents.push(playerToAccept);
 					document.getElementById('opponents').textContent = JSON.stringify(opponents);
 					challengeSocket.send(JSON.stringify({
@@ -186,17 +223,14 @@
 						'messageType': 'accept'
 
 					}));
-					messageInputDom.value = '';
+					document.querySelector(`#invitations div[id=${playerToAccept}]`).style.backgroundColor = "transparent";
+					playerToAccept = "";
+					console.log('got past sending to websocket!!');
 				}
         	};
 
 			{% else %}
 
-			var perfEntries = performance.getEntriesByType("navigation");
-
-			if (perfEntries[0].type === "back_forward") {
-    			location.reload(true);
-			}
 
 			const challengeSocket = new WebSocket(
 				'wss://'
@@ -211,7 +245,7 @@
 				
 				}
 				else {
-					var newOption = document.createElement('option');
+					var newOption = document.createElement('div');
 					newOption.value = data.newPlayerUsername;
 					newOption.text = data.newPlayerUsername;
 					newOption.id = data.newPlayerUsername;
