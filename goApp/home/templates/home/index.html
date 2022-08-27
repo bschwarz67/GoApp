@@ -137,6 +137,7 @@
 			challengeSocket.onmessage = function(e) {
 				const data = JSON.parse(e.data);
 				if(data.messageType == 'challenge') {
+					console.log(data.challengingPlayer + "has challenged you");
 					var newOption = document.createElement('div');
 					newOption.text = data.challengingPlayer;
 					newOption.id = data.challengingPlayer;
