@@ -243,8 +243,9 @@
 				}
 				else {
 					var newOption = document.createElement('div');
-					newOption.text = data.newPlayerUsername;
+					newOption.innerHTML = data.newPlayerUsername;
 					newOption.id = data.newPlayerUsername;
+					newOption.onclick = function(){setPlayerToChallenge(this)};
 					document.querySelector('#opponent-select').appendChild(newOption);
 				}
 				
