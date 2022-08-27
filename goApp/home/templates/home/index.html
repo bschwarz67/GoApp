@@ -137,7 +137,6 @@
 			challengeSocket.onmessage = function(e) {
 				const data = JSON.parse(e.data);
 				if(data.messageType == 'challenge') {
-					console.log(data.challengingPlayer + "has challenged you");
 					var newOption = document.createElement('div');
 					newOption.innerHTML = data.challengingPlayer;
 					newOption.id = data.challengingPlayer;
@@ -147,15 +146,11 @@
 				else if (data.messageType == 'accept') { 
 					var newOption = document.createElement('div');
 					newOption.innerHTML = data.newOpponent;
-					newOption.id = data.gameId + "_" + data.newOpponent;
+					newOption.id = data.gameId + '_' + data.newOpponent;
 					newOption.onclick = function(){redirectToBoard(this)};
 					var deletedOption = document.querySelector(`#invitations div[id=${data.newOpponent}]`);
 					if(deletedOption != null) {
 						document.querySelector('#invitations').removeChild(deletedOption);
-					}
-					if(!opponents.includes(data.newOpponent)) {
-						opponents.push(data.newOpponent);
-						document.getElementById('opponents').textContent = JSON.stringify(opponents);
 					}
 					document.querySelector('#current-games').appendChild(newOption);
 				}
@@ -183,7 +178,6 @@
 					}));
 					document.querySelector(`#opponent-select div[id=${playerToChallenge}]`).style.backgroundColor = "transparent";
 					playerToChallenge = "";
-					console.log('got past sending to websocket!!');
 				}
 			};
 
@@ -193,7 +187,6 @@
 
 
 			document.querySelector('#create-temp-player').onclick = function(e) {
-
 				let errorNode = document.createElement("div");
 				errorNode.style.width = "160px";
 				errorNode.style.height = "20px";
@@ -212,17 +205,15 @@
 
 
         	document.querySelector('#opponent-accept').onclick = function(e) {
-				if(playerToAccept != "" && !opponents.includes(playerToChallenge)) {					
+				if(playerToAccept != "") {					
 					opponents.push(playerToAccept);
 					document.getElementById('opponents').textContent = JSON.stringify(opponents);
 					challengeSocket.send(JSON.stringify({
 						'selectedPlayer': playerToAccept,
 						'messageType': 'accept'
-
 					}));
 					document.querySelector(`#invitations div[id=${playerToAccept}]`).style.backgroundColor = "transparent";
 					playerToAccept = "";
-					console.log('got past sending to websocket!!');
 				}
         	};
 
