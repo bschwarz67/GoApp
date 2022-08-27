@@ -250,7 +250,6 @@ class ChallengeConsumer(WebsocketConsumer):
         challengingPlayer = event['challengingPlayer']
         challengedPlayer = event['challengedPlayer']
         username = self.scope['user'].username
-        print("test to see if consumer is talking back to the websocket")
         if (username == challengedPlayer):
             # Send message to WebSocket
             self.send(text_data=json.dumps({

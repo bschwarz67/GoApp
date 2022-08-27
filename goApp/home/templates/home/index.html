@@ -139,13 +139,13 @@
 				if(data.messageType == 'challenge') {
 					console.log(data.challengingPlayer + "has challenged you");
 					var newOption = document.createElement('div');
-					newOption.text = data.challengingPlayer;
+					newOption.innerHTML = data.challengingPlayer;
 					newOption.id = data.challengingPlayer;
 					document.querySelector('#invitations').appendChild(newOption);
 				}
 				else if (data.messageType == 'accept') { 
 					var newOption = document.createElement('div');
-					newOption.text = data.newOpponent;
+					newOption.innerHTML = data.newOpponent;
 					newOption.id = data.gameId + "_" + data.newOpponent;
 					newOption.onclick = function(){redirectToBoard(this)};
 					var deletedOption = document.querySelector(`#invitations div[id=${data.newOpponent}]`);
@@ -160,7 +160,7 @@
 				}
 				else {
 					var newOption = document.createElement('div');
-					newOption.text = data.newPlayerUsername;
+					newOption.innerHTML = data.newPlayerUsername;
 					newOption.id = data.newPlayerUsername;
 					document.querySelector('#opponent-select').appendChild(newOption);
 				}
