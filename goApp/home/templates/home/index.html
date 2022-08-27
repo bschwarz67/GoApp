@@ -141,6 +141,7 @@
 					var newOption = document.createElement('div');
 					newOption.innerHTML = data.challengingPlayer;
 					newOption.id = data.challengingPlayer;
+					newOption.onclick = function(){setPlayerToChallenge(this)};
 					document.querySelector('#invitations').appendChild(newOption);
 				}
 				else if (data.messageType == 'accept') { 
@@ -162,6 +163,7 @@
 					var newOption = document.createElement('div');
 					newOption.innerHTML = data.newPlayerUsername;
 					newOption.id = data.newPlayerUsername;
+					newOption.onclick = function(){setPlayerToAccept(this)};
 					document.querySelector('#opponent-select').appendChild(newOption);
 				}
         	};
