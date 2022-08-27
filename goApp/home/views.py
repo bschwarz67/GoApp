@@ -43,10 +43,11 @@ def index(request):
 			opponent = {}
 			if request.user.username == x.whitePlayer.username or request.user.username == x.blackPlayer.username:
 				if(request.user.username == x.whitePlayer.username):
-					opponent['value'] = x.blackPlayer.username
+					opponent['gameId'] = "{}_{}".format(x.id, x.blackPlayer.username)
+					opponent['opponent'] = x.blackPlayer.username
 				else:
-					opponent['value'] = x.whitePlayer.username
-				opponent['gameId'] = x.id
+					opponent['gameId'] = "{}_{}".format(x.id, x.whitePlayer.username)
+					opponent['opponent'] = x.whitePlayer.username
 				opponentObjects.append(opponent)
 		
 		context = {

@@ -26,7 +26,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['simplego-0.herokuapp.com']
+ALLOWED_HOSTS = ['simplego-0.herokuapp.com', '127.0.0.1']
 
 AUTH_USER_MODEL = 'home.Player'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True

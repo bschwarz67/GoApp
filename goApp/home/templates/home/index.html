@@ -48,7 +48,7 @@
 		
 		<div id="opponent-select">
 			{% for x in availablePlayers %}
-				<div onclick="setPlayerToChallenge(this)" value="{{ x }}">{{ x }}</div>
+				<div onclick="setPlayerToChallenge(this)" id="{{ x }}">{{ x }}</div>
 			{% endfor %}
 		</div>
 		<input id="opponent-challenge" type="submit" value="challenge">
@@ -58,7 +58,7 @@
 
 		<div id="invitations">
 			{% for x in challengingPlayers %}
-				<div onclick="setPlayerToAccept(this)" value="{{ x }}" id="{{ x }}">{{ x }}</div>
+				<div onclick="setPlayerToAccept(this)" id="{{ x }}">{{ x }}</div>
 			{% endfor %}
 		</div>
 		<input id="opponent-accept" type="submit" value="accept">
@@ -68,7 +68,7 @@
 
 		<div id="current-games">
 			{% for x in opponentObjects %}
-				<div onclick="redirectToBoard(this)" value="{{ x.value }}" id="{{ x.gameId }}">{{ x.value }}</div>
+				<div onclick="redirectToBoard(this)" id="{{ x.gameId }}">{{ x.opponent }}</div>
 			{% endfor %}
 		</div>
 
@@ -108,7 +108,6 @@
 					document.querySelector(`#invitations div[id=${playerToAccept}]`).style.backgroundColor = "transparent";
 				}
 				playerToAccept = event.id;
-				console.log("set to accept  " + playerToAccept);
 				event.style.backgroundColor = "#ff5500";
 			}
 
@@ -117,7 +116,6 @@
 					document.querySelector(`#opponent-select div[id=${playerToChallenge}]`).style.backgroundColor = "transparent";
 				}
 				playerToChallenge = event.id;
-				console.log("set to challenge  " + playerToChallenge);
 				event.style.backgroundColor = "#ff5500";
 			}
 
@@ -131,7 +129,7 @@
         	);
 
 			function redirectToBoard(event) {
-				let gameIdSlug = event.id + "_" + event.value +  "_game/";
+				let gameIdSlug = event.id + "_game/";
 				window.location.href= "/board/" + gameIdSlug;
 			};
 
@@ -140,16 +138,14 @@
 				const data = JSON.parse(e.data);
 				if(data.messageType == 'challenge') {
 					var newOption = document.createElement('div');
-					newOption.value = data.challengingPlayer;
 					newOption.text = data.challengingPlayer;
 					newOption.id = data.challengingPlayer;
 					document.querySelector('#invitations').add(newOption);
 				}
 				else if (data.messageType == 'accept') { 
 					var newOption = document.createElement('div');
-					newOption.value = data.newOpponent;
 					newOption.text = data.newOpponent;
-					newOption.id = data.gameId;
+					newOption.id = data.gameId + "_" + data.newOpponent;
 					newOption.onclick = function(){redirectToBoard(this)};
 					var deletedOption = document.querySelector(`#invitations div[id=${data.newOpponent}]`);
 					if(deletedOption != null) {
@@ -163,7 +159,6 @@
 				}
 				else {
 					var newOption = document.createElement('div');
-					newOption.value = data.newPlayerUsername;
 					newOption.text = data.newPlayerUsername;
 					newOption.id = data.newPlayerUsername;
 					document.querySelector('#opponent-select').add(newOption);
@@ -175,8 +170,7 @@
         	};
 
 
-			document.querySelector('#opponent-challenge').onclick = function(e) {
-								
+			document.querySelector('#opponent-challenge').onclick = function(e) {		
 				if(playerToChallenge != "" && !challengedPlayers.includes(playerToChallenge) && !opponents.includes(playerToChallenge)){
 					challengedPlayers.push(playerToChallenge);
 					document.getElementById('challenged-players').textContent = JSON.stringify(challengedPlayers);
@@ -246,7 +240,6 @@
 				}
 				else {
 					var newOption = document.createElement('div');
-					newOption.value = data.newPlayerUsername;
 					newOption.text = data.newPlayerUsername;
 					newOption.id = data.newPlayerUsername;
 					document.querySelector('#opponent-select').add(newOption);

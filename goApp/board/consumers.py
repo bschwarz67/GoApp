@@ -5,7 +5,7 @@ from channels.generic.websocket import WebsocketConsumer
 from home.models import Player
 from board.models import Game
 import sys
-#sys.path.append('/Users/bryan/desktop/personalCodeRepo/goapp/goapp/board')
+sys.path.append('/Users/bryan/desktop/personalCodeRepo/goapp/goapp/board')
 sys.path.append('/app/goApp/board')
 import checkPosition
 
