@@ -140,7 +140,7 @@
 					var newOption = document.createElement('div');
 					newOption.text = data.challengingPlayer;
 					newOption.id = data.challengingPlayer;
-					document.querySelector('#invitations').add(newOption);
+					document.querySelector('#invitations').appendChild(newOption);
 				}
 				else if (data.messageType == 'accept') { 
 					var newOption = document.createElement('div');
@@ -155,13 +155,13 @@
 						opponents.push(data.newOpponent);
 						document.getElementById('opponents').textContent = JSON.stringify(opponents);
 					}
-					document.querySelector('#current-games').add(newOption);
+					document.querySelector('#current-games').appendChild(newOption);
 				}
 				else {
 					var newOption = document.createElement('div');
 					newOption.text = data.newPlayerUsername;
 					newOption.id = data.newPlayerUsername;
-					document.querySelector('#opponent-select').add(newOption);
+					document.querySelector('#opponent-select').appendChild(newOption);
 				}
         	};
 
@@ -242,7 +242,7 @@
 					var newOption = document.createElement('div');
 					newOption.text = data.newPlayerUsername;
 					newOption.id = data.newPlayerUsername;
-					document.querySelector('#opponent-select').add(newOption);
+					document.querySelector('#opponent-select').appendChild(newOption);
 				}
 				
         	};
