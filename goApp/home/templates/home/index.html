@@ -85,7 +85,6 @@
 					justify-content: inline;
 					width: 100%;
 					height: 10%;
-					font-size: 110%;
 				}
 
 				#input-username {
@@ -152,10 +151,12 @@
 					border-width: 3%;
 				}
 
+				/*
 				.option-select {
 					height: 20%;
 					font-size: 150%;
 				}
+				*/
 			}
 
 		{% endblock %}
@@ -277,18 +278,15 @@
 					newOption.innerHTML = data.challengingPlayer;
 					newOption.id = data.challengingPlayer;
 					newOption.class = "option-select";
-					newOption.style.height= "30%";
-					newOption.style.fontSize= "170%";
 					newOption.onclick = function(){setPlayerToAccept(this)};
 					document.querySelector('#invitations').appendChild(newOption);
+					newOption.style.backgroundColor = 'red';
 				}
 				else if (data.messageType == 'accept') { 
 					var newOption = document.createElement('div');
 					newOption.innerHTML = data.newOpponent;
 					newOption.id = data.gameId + '_' + data.newOpponent;
 					newOption.class = "option-select";
-					newOption.style.height= "30%";
-					newOption.style.fontSize= "170%";
 					newOption.onclick = function(){redirectToBoard(this)};
 					var deletedOption = document.querySelector(`#invitations div[id=${data.newOpponent}]`);
 					if(deletedOption != null) {
@@ -301,8 +299,6 @@
 					newOption.innerHTML = data.newPlayerUsername;
 					newOption.id = data.newPlayerUsername;
 					newOption.class = "option-select";
-					newOption.style.height= "30%";
-					newOption.style.fontSize= "170%";
 					newOption.onclick = function(){setPlayerToChallenge(this)};
 					document.querySelector('#opponent-select').appendChild(newOption);
 				}
@@ -382,8 +378,6 @@
 					newOption.innerHTML = data.newPlayerUsername;
 					newOption.id = data.newPlayerUsername;
 					newOption.class = "option-select";
-					newOption.style.height= "30%";
-					newOption.style.fontSize= "170%";
 					newOption.onclick = function(){setPlayerToChallenge(this)};
 					document.querySelector('#opponent-select').appendChild(newOption);
 				}
