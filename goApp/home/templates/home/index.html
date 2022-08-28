@@ -152,10 +152,6 @@
 				}
 
 				
-				.option-select {
-					background-color: red;
-				}
-				
 			}
 
 		{% endblock %}
@@ -276,6 +272,7 @@
 					var newOption = document.createElement('div');
 					newOption.innerHTML = data.challengingPlayer;
 					newOption.id = data.challengingPlayer;
+					newOption.class = 'option-select';
 					newOption.onclick = function(){setPlayerToAccept(this)};
 					document.querySelector('#invitations').appendChild(newOption);
 					newOption.class = 'option-select';
