@@ -151,12 +151,11 @@
 					border-width: 3%;
 				}
 
-				/*
+				
 				.option-select {
-					height: 20%;
-					font-size: 150%;
+					background-color: red;
 				}
-				*/
+				
 			}
 
 		{% endblock %}
@@ -277,10 +276,9 @@
 					var newOption = document.createElement('div');
 					newOption.innerHTML = data.challengingPlayer;
 					newOption.id = data.challengingPlayer;
-					newOption.class = "option-select";
 					newOption.onclick = function(){setPlayerToAccept(this)};
 					document.querySelector('#invitations').appendChild(newOption);
-					newOption.style.backgroundColor = 'red';
+					newOption.class = 'option-select';
 				}
 				else if (data.messageType == 'accept') { 
 					var newOption = document.createElement('div');
