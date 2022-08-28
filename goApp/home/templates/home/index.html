@@ -20,7 +20,7 @@
 			}
 
 			#challenge-arena-container {
-				width: 80%;
+				width: 100%;
 				height: 80%;
 			}
 
@@ -28,6 +28,11 @@
 				width: 100%;
 				height: 100%;
 			}
+
+			#challenge-arena-wrapper-wrapper {
+				width: 100%;
+				height: 100%;
+				}
 
 			#opponent-select {
 				width: 15%;
@@ -66,36 +71,41 @@
 				}
 
 				#challenge-arena-container {
-					display: flex;
-					justify-content: center;
-					width: 80%;
+					width: 100%;
 					height: 80%;
 				}
 
 				#challenge-arena-wrapper {
+					display: flex;
+					justify-content: center;
 					width: 100%;
 					height: 100%;
 				}
 
+				#challenge-arena-wrapper-wrapper {
+					width: 50%;
+					height: 50%;
+				}
+
 				#opponent-select {
-					width: 25%;
-					height: 25%;
+					width: 50%;
+					height: 50%;
 					overflow: scroll;
 					border-style: solid;
 					border-width: 3%;
 				}
 
 				#invitations {
-					width: 25%;
-					height: 25%;
+					width: 50%;
+					height: 50%;
 					overflow: scroll;
 					border-style: solid;
 					border-width: 3%;
 				}
 
 				#current-games {
-					width: 25%;
-					height: 25%;
+					width: 50%;
+					height: 50%;
 					overflow: scroll;
 					border-style: solid;
 					border-width: 3%;
@@ -122,30 +132,32 @@
 			
 		<div id="challenge-arena-container">
 			<div id="challenge-arena-wrapper">
-				<div id="opponent-select">
-					{% for x in availablePlayers %}
-						<div class="player-select" onclick="setPlayerToChallenge(this)" id="{{ x }}">{{ x }}</div>
-					{% endfor %}
-				</div>
-				<input id="opponent-challenge" type="submit" value="challenge">
+				<div id="challenge-arena-wrapper-wrapper">
+					<div id="opponent-select">
+						{% for x in availablePlayers %}
+							<div class="player-select" onclick="setPlayerToChallenge(this)" id="{{ x }}">{{ x }}</div>
+						{% endfor %}
+					</div>
+					<input id="opponent-challenge" type="submit" value="challenge">
 
-				<br>
-				<br>
+					<br>
+					<br>
 
-				<div id="invitations">
-					{% for x in challengingPlayers %}
-						<div class="player-select" onclick="setPlayerToAccept(this)" id="{{ x }}">{{ x }}</div>
-					{% endfor %}
-				</div>
-				<input id="opponent-accept" type="submit" value="accept">
+					<div id="invitations">
+						{% for x in challengingPlayers %}
+							<div class="player-select" onclick="setPlayerToAccept(this)" id="{{ x }}">{{ x }}</div>
+						{% endfor %}
+					</div>
+					<input id="opponent-accept" type="submit" value="accept">
 
-				<br>
-				<br>
+					<br>
+					<br>
 
-				<div id="current-games">
-					{% for x in opponentObjects %}
-						<div class="player-select" onclick="redirectToBoard(this)" id="{{ x.gameId }}">{{ x.opponent }}</div>
-					{% endfor %}
+					<div id="current-games">
+						{% for x in opponentObjects %}
+							<div class="player-select" onclick="redirectToBoard(this)" id="{{ x.gameId }}">{{ x.opponent }}</div>
+						{% endfor %}
+					</div>
 				</div>
 			</div>
 		</div>
