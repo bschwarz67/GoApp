@@ -152,9 +152,9 @@
 					border-width: 3%;
 				}
 
-				.player-select {
+				.option-select {
 					height: 10%;
-					font-size: 120%;
+					font-size: 150%;
 				}
 			}
 
@@ -178,7 +178,7 @@
 						<div id="opponent-select-wrapper">
 							<div id="opponent-select">
 								{% for x in availablePlayers %}
-									<div class="player-select" onclick="setPlayerToChallenge(this)" id="{{ x }}">{{ x }}</div>
+									<div class="option-select" onclick="setPlayerToChallenge(this)" id="{{ x }}">{{ x }}</div>
 								{% endfor %}
 							</div>
 						</div>
@@ -189,7 +189,7 @@
 						<div id="invitations-wrapper">
 							<div id="invitations">
 								{% for x in challengingPlayers %}
-									<div class="player-select" onclick="setPlayerToAccept(this)" id="{{ x }}">{{ x }}</div>
+									<div class="option-select" onclick="setPlayerToAccept(this)" id="{{ x }}">{{ x }}</div>
 								{% endfor %}
 							</div>
 						</div>
@@ -200,7 +200,7 @@
 
 						<div id="current-games">
 							{% for x in opponentObjects %}
-								<div class="player-select" onclick="redirectToBoard(this)" id="{{ x.gameId }}">{{ x.opponent }}</div>
+								<div class="option-select" onclick="redirectToBoard(this)" id="{{ x.gameId }}">{{ x.opponent }}</div>
 							{% endfor %}
 						</div>
 					</div>
