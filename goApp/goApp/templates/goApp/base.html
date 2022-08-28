@@ -2,12 +2,35 @@
 <html>
 	<head>
 		<title>{% block title %} Simple Go {% endblock %}</title>
-		<style>{% block css %} {% endblock %}</style>
-		<a href="/accounts/login">Login</a>
-		<a href="/accounts/logout">Logout</a>
+		<style>
+		{% block css %}
+
+			html {
+				height: 100%;
+				width: 100%;
+			}
+
+			body {
+				height: 100%;
+				width: 100%;
+			}
+
+			#login-logout-container{
+				height: 5%;
+				width: 100%;
+			}
+		
+		{% endblock %}
+		</style>
+		<div id="login-logout-container">
+			<a href="/accounts/login">Login</a>
+			<a href="/accounts/logout">Logout</a>
+		</div>
+		
 	</head>
 
 	<body>
-		{% block content %} {% endblock %}
+		{% block content %} 
+		{% endblock %}
 	</body>
 </html>

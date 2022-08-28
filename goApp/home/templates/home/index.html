@@ -19,6 +19,11 @@
 				height: 100%;
 			}
 
+			#home-container {
+				width: 100%;
+				height: 100%;
+			}
+
 			#challenge-arena-container {
 				width: 100%;
 				height: 80%;
@@ -34,7 +39,7 @@
 				height: 100%;
 				}
 
-			#opponent-select {
+			#opponent-select-wrapper {
 				width: 15%;
 				height: 30%;
 				overflow: scroll;
@@ -42,7 +47,7 @@
 				border-width: 3%;
 			}
 
-			#invitations {
+			#invitations-wrapper {
 				width: 15%;
 				height: 30%;
 				overflow: scroll;
@@ -70,24 +75,33 @@
 					height: 100%;
 				}
 
+				#home-container {
+					width: 100%;
+					height: 100%;
+				}
+
 				#create-temp-player-container {
-					width: 30%;
+					display: flex;
+					justify-content: inline;
+					width: 100%;
 					height: 10%;
+					font-size: 110%;
 				}
 
 				#input-username {
-					width: 100%;
-					height: 50%;
+					height: 80%;
+					font-size: 110%;
 				}
 
 				#create-temp-player {
-					width: 100%;
-					height: 50%;
+					height: 80%;
+					font-size: 110%;
 				}
+
 
 				#challenge-arena-container {
 					width: 100%;
-					height: 80%;
+					height: 90%;
 				}
 
 				#challenge-arena-wrapper {
@@ -102,25 +116,37 @@
 					height: 50%;
 				}
 
-				#opponent-select {
-					width: 80%;
-					height: 80%;
+				#opponent-select-wrapper {
+					width: 70%;
+					height: 70%;
 					overflow: scroll;
 					border-style: solid;
 					border-width: 3%;
 				}
 
-				#invitations {
-					width: 80%;
-					height: 80%;
+				#invitations-wrapper {
+					width: 70%;
+					height: 70%;
 					overflow: scroll;
 					border-style: solid;
 					border-width: 3%;
+				}
+
+				#opponent-challenge {
+					width: 20%;
+					height: 15%;
+					font-size: 110%;
+				}
+
+				#opponent-accept {
+					width: 20%;
+					height: 15%;
+					font-size: 110%;
 				}
 
 				#current-games {
-					width: 80%;
-					height: 80%;
+					width: 70%;
+					height: 70%;
 					overflow: scroll;
 					border-style: solid;
 					border-width: 3%;
@@ -128,6 +154,7 @@
 
 				.player-select {
 					height: 10%;
+					font-size: 110%;
 				}
 			}
 
@@ -139,39 +166,43 @@
 	{% block content %}
 		{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-		
-		<div id="create-temp-player-container">
-			Enter a name: <input type="text" name="name" pattern="[a-zA-z0-9]*" maxlength="10" id="input-username">
-			<input type="submit" value="Create Temporary Player" id="create-temp-player">
-		</div>
-			
-		<div id="challenge-arena-container">
-			<div id="challenge-arena-wrapper">
-				<div id="challenge-arena-wrapper-wrapper">
-					<div id="opponent-select">
-						{% for x in availablePlayers %}
-							<div class="player-select" onclick="setPlayerToChallenge(this)" id="{{ x }}">{{ x }}</div>
-						{% endfor %}
-					</div>
-					<input id="opponent-challenge" type="submit" value="challenge">
+		<div id="home-container">
+			<div id="create-temp-player-container">
+				<input type="text" name="name" pattern="[a-zA-z0-9]*" maxlength="10" id="input-username">
+				<input type="submit" value="Create Temporary Player" id="create-temp-player">
+			</div>
+				
+			<div id="challenge-arena-container">
+				<div id="challenge-arena-wrapper">
+					<div id="challenge-arena-wrapper-wrapper">
+						<div id="opponent-select-wrapper">
+							<div id="opponent-select">
+								{% for x in availablePlayers %}
+									<div class="player-select" onclick="setPlayerToChallenge(this)" id="{{ x }}">{{ x }}</div>
+								{% endfor %}
+							</div>
+						</div>
+						<input id="opponent-challenge" type="submit" value="challenge">
 
-					<br>
-					<br>
+						<br>
+						<br>
+						<div id="invitations-wrapper">
+							<div id="invitations">
+								{% for x in challengingPlayers %}
+									<div class="player-select" onclick="setPlayerToAccept(this)" id="{{ x }}">{{ x }}</div>
+								{% endfor %}
+							</div>
+						</div>
+						<input id="opponent-accept" type="submit" value="accept">
 
-					<div id="invitations">
-						{% for x in challengingPlayers %}
-							<div class="player-select" onclick="setPlayerToAccept(this)" id="{{ x }}">{{ x }}</div>
-						{% endfor %}
-					</div>
-					<input id="opponent-accept" type="submit" value="accept">
+						<br>
+						<br>
 
-					<br>
-					<br>
-
-					<div id="current-games">
-						{% for x in opponentObjects %}
-							<div class="player-select" onclick="redirectToBoard(this)" id="{{ x.gameId }}">{{ x.opponent }}</div>
-						{% endfor %}
+						<div id="current-games">
+							{% for x in opponentObjects %}
+								<div class="player-select" onclick="redirectToBoard(this)" id="{{ x.gameId }}">{{ x.opponent }}</div>
+							{% endfor %}
+						</div>
 					</div>
 				</div>
 			</div>
