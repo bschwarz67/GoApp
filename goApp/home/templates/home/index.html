@@ -37,7 +37,7 @@
 			#challenge-arena-wrapper-wrapper {
 				width: 100%;
 				height: 100%;
-				}
+			}
 
 			#opponent-select-wrapper {
 				width: 15%;
@@ -64,7 +64,7 @@
 			}
 
 			.option-select {
-				font-size: 100% !important;
+				font-size: 100%;
 			}
 
 			@media only screen and (max-width: 1000px) {
@@ -280,10 +280,10 @@
 					var newOption = document.createElement('div');
 					newOption.innerHTML = data.challengingPlayer;
 					newOption.id = data.challengingPlayer;
-					newOption.class = 'option-select';
+					newOption.className = 'option-select';
 					newOption.onclick = function(){setPlayerToAccept(this)};
 					if(window.innerWidth <= 1000) {
-						newOption.style.fontSize = "250%";
+						newOption.style.fontSize = '250%';
 					}
 					document.querySelector('#invitations').appendChild(newOption);
 					newOption.class = 'option-select';
@@ -292,10 +292,10 @@
 					var newOption = document.createElement('div');
 					newOption.innerHTML = data.newOpponent;
 					newOption.id = data.gameId + '_' + data.newOpponent;
-					newOption.class = "option-select";
+					newOption.className = 'option-select';
 					newOption.onclick = function(){redirectToBoard(this)};
 					if(window.innerWidth <= 1000) {
-						newOption.style.fontSize = "250%";
+						newOption.style.fontSize = '250%';
 					}
 					var deletedOption = document.querySelector(`#invitations div[id=${data.newOpponent}]`);
 					if(deletedOption != null) {
@@ -307,10 +307,10 @@
 					var newOption = document.createElement('div');
 					newOption.innerHTML = data.newPlayerUsername;
 					newOption.id = data.newPlayerUsername;
-					newOption.class = "option-select";
+					newOption.className = 'option-select';
 					newOption.onclick = function(){setPlayerToChallenge(this)};
 					if(window.innerWidth <= 1000) {
-						newOption.style.fontSize = "250%";
+						newOption.style.fontSize = '250%';
 					}
 					document.querySelector('#opponent-select').appendChild(newOption);
 				}
@@ -322,15 +322,15 @@
 
 
 			document.querySelector('#opponent-challenge').onclick = function(e) {		
-				if(playerToChallenge != "" && !challengedPlayers.includes(playerToChallenge) && !opponents.includes(playerToChallenge)){
+				if(playerToChallenge != '' && !challengedPlayers.includes(playerToChallenge) && !opponents.includes(playerToChallenge)){
 					challengedPlayers.push(playerToChallenge);
 					document.getElementById('challenged-players').textContent = JSON.stringify(challengedPlayers);
 					challengeSocket.send(JSON.stringify({
 						'selectedPlayer': playerToChallenge,
 						'messageType': 'challenge'
 					}));
-					document.querySelector(`#opponent-select div[id=${playerToChallenge}]`).style.backgroundColor = "transparent";
-					playerToChallenge = "";
+					document.querySelector(`#opponent-select div[id=${playerToChallenge}]`).style.backgroundColor = 'transparent';
+					playerToChallenge = '';
 				}
 			};
 
@@ -340,13 +340,13 @@
 
 
 			document.querySelector('#create-temp-player').onclick = function(e) {
-				let errorNode = document.createElement("div");
-				errorNode.style.width = "160px";
-				errorNode.style.height = "20px";
-				errorNode.textContent = "You have already create a temporary player";
-				errorNode.style.color = "red";
-				let submitNode = document.querySelector("#create-temp-player")
-				document.querySelector("#create-temp-player-container").insertBefore(errorNode, submitNode.nextSibling);
+				let errorNode = document.createElement('div');
+				errorNode.style.width = '160px';
+				errorNode.style.height = '20px';
+				errorNode.textContent = 'You have already create a temporary player';
+				errorNode.style.color = 'red';
+				let submitNode = document.querySelector('#create-temp-player')
+				document.querySelector('#create-temp-player-container').insertBefore(errorNode, submitNode.nextSibling);
 			
 				
 				window.setTimeout(function() {
@@ -358,14 +358,14 @@
 
 
         	document.querySelector('#opponent-accept').onclick = function(e) {
-				if(playerToAccept != "") {					
+				if(playerToAccept != '') {					
 					opponents.push(playerToAccept);
 					document.getElementById('opponents').textContent = JSON.stringify(opponents);
 					challengeSocket.send(JSON.stringify({
 						'selectedPlayer': playerToAccept,
 						'messageType': 'accept'
 					}));
-					document.querySelector(`#invitations div[id=${playerToAccept}]`).style.backgroundColor = "transparent";
+					document.querySelector(`#invitations div[id=${playerToAccept}]`).style.backgroundColor = 'transparent';
 					playerToAccept = "";
 				}
         	};
@@ -389,10 +389,10 @@
 					var newOption = document.createElement('div');
 					newOption.innerHTML = data.newPlayerUsername;
 					newOption.id = data.newPlayerUsername;
-					newOption.class = "option-select";
+					newOption.className = 'option-select';
 					newOption.onclick = function(){setPlayerToChallenge(this)};
 					if(window.innerWidth <= 1000) {
-						newOption.style.fontSize = "250%";
+						newOption.style.fontSize = '250%';
 					}
 					document.querySelector('#opponent-select').appendChild(newOption);
 				}
