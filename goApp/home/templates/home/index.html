@@ -151,6 +151,10 @@
 					border-width: 3%;
 				}
 
+				.option-select {
+					font-size: 250%;
+				}
+
 				
 			}
 
@@ -274,6 +278,9 @@
 					newOption.id = data.challengingPlayer;
 					newOption.class = 'option-select';
 					newOption.onclick = function(){setPlayerToAccept(this)};
+					if(window.innerWidth <= 1000) {
+						newOption.fontSize = "200%";
+					}
 					document.querySelector('#invitations').appendChild(newOption);
 					newOption.class = 'option-select';
 				}
@@ -283,6 +290,9 @@
 					newOption.id = data.gameId + '_' + data.newOpponent;
 					newOption.class = "option-select";
 					newOption.onclick = function(){redirectToBoard(this)};
+					if(window.innerWidth <= 1000) {
+						newOption.fontSize = "200%";
+					}
 					var deletedOption = document.querySelector(`#invitations div[id=${data.newOpponent}]`);
 					if(deletedOption != null) {
 						document.querySelector('#invitations').removeChild(deletedOption);
@@ -295,6 +305,9 @@
 					newOption.id = data.newPlayerUsername;
 					newOption.class = "option-select";
 					newOption.onclick = function(){setPlayerToChallenge(this)};
+					if(window.innerWidth <= 1000) {
+						newOption.fontSize = "200%";
+					}
 					document.querySelector('#opponent-select').appendChild(newOption);
 				}
         	};
@@ -374,6 +387,9 @@
 					newOption.id = data.newPlayerUsername;
 					newOption.class = "option-select";
 					newOption.onclick = function(){setPlayerToChallenge(this)};
+					if(window.innerWidth <= 1000) {
+						newOption.fontSize = "200%";
+					}
 					document.querySelector('#opponent-select').appendChild(newOption);
 				}
 				
