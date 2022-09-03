@@ -1,0 +1,7 @@
+todo:
+
+
+look at cache header options in django for how server  interacts with browser cache. look into django cache. look at all the 
+replies in this stackoverflow post for details. this is to prevent having ios browser presisting cache when 
+navigating to some goapp pages with back/forward arrows and causing the websocket connection to stay closed
+https://stackoverflow.com/questions/8788802/prevent-safari-loading-from-cache-when-back-button-is-clicked/13123626#13123626
