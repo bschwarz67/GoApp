@@ -233,8 +233,16 @@
 			var perfEntries = performance.getEntriesByType("navigation");
 
 			if (perfEntries[0].type === "back_forward") {
-				location.reload(true);
+				console.log('backspace detected');
+				//location.reload(true);
 			}
+
+			window.onpageshow = function(event) {
+    			if (event.persisted) {
+					console.log('persisted cache detected');
+        			//window.location.reload(true);
+    			}
+			};
 
 			let challengedPlayers = JSON.parse(document.getElementById('challenged-players').textContent);
 			let opponents = JSON.parse(document.getElementById('opponents').textContent);
