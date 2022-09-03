@@ -233,14 +233,12 @@
 			var perfEntries = performance.getEntriesByType("navigation");
 
 			if (perfEntries[0].type === "back_forward") {
-				console.log('backspace detected');
-				//location.reload(true);
+				location.reload(true);
 			}
 
 			window.onpageshow = function(event) {
     			if (event.persisted) {
-					console.log('persisted cache detected');
-        			//window.location.reload(true);
+        			window.location.reload(true);
     			}
 			};
 
