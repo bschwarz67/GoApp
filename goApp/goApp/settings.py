@@ -73,7 +73,7 @@ TEMPLATES = [
         'DIRS': [
             '/app/goApp/goApp/templates/goApp',
 			'/Users/bryan/desktop/personalCodeRepo/goApp/goApp/goApp/templates/goApp',
-            '/go-app/goApp/goApp/templates/goApp',
+            '/opt/render/project/src/goApp/goApp/templates/goApp',
 		],
         'APP_DIRS': True,
         'OPTIONS': {
