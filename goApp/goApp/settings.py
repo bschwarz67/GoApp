@@ -97,7 +97,7 @@ DATABASES = {
     'default': dj_database_url.config(
         # Feel free to alter this value to suit your needs.
         #default='postgresql://postgres:postgres@localhost:5432/mysite',
-        default='postgres://go_app_db_admin:lj9vrH42PKBO5d9lsipECKT8B3IvwxtR@dpg-ceu8ctirrk0bnkt6k0og-a/go_app_db'
+        default='postgres://go_app_db_admin:lj9vrH42PKBO5d9lsipECKT8B3IvwxtR@dpg-ceu8ctirrk0bnkt6k0og-a/go_app_db',
         conn_max_age=600
     ),
 
