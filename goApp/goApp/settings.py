@@ -30,7 +30,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='khtza@-_`x?dP[?]`45nf[awh5=_)
 #DEBUG = config('DEBUG', default=False, cast=bool)
 DEBUG = 'RENDER' not in os.environ
 #ALLOWED_HOSTS = ['simplego-0.herokuapp.com', '127.0.0.1']
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['go-app-xq8f.onrender.com']
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
