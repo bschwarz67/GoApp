@@ -1,3 +1,11 @@
 **/venv
 settingSecrets.py
 .env
+**__pycache__**
+
+goApp/home/migrations/*
+!goApp/home/migrations/.gitkeep
+
+goApp/board/migrations/*
+!goApp/board/migrations/.gitkeep
+
