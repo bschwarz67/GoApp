@@ -7,6 +7,7 @@ from board.models import Game
 import sys
 sys.path.append('/Users/bryan/desktop/personalCodeRepo/goapp/goapp/board')
 sys.path.append('/app/goApp/board')
+sys.append('/opt/render/project/src/goApp/board')
 import checkPosition
 
 
