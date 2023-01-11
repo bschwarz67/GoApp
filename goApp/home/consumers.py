@@ -55,13 +55,23 @@ class ChallengeConsumer(WebsocketConsumer):
                 selectedPlayer.challengedPlayers.remove(actingPlayer)
                 selectedPlayer.opponents.add(actingPlayer)
 
-                
-                if selectedPlayer.challengingPlayers.contains(actingPlayer):
+                #if Entry.objects.filter(id=selectedPlayer.id).exists():
+
+                if selectedPlayer.challengingPlayers.filter(id=actingPlayer.id).exists():
                     selectedPlayer.challengingPlayers.remove(actingPlayer)
                 actingPlayer.opponents.add(selectedPlayer)
                 actingPlayer.challengingPlayers.remove(selectedPlayer)
-                if actingPlayer.challengedPlayers.contains(selectedPlayer):
+                if actingPlayer.challengedPlayers.filter(id=selectedPlayer.id).exists():
                     actingPlayer.challengedPlayers.remove(selectedPlayer)
+
+
+                
+                #if selectedPlayer.challengingPlayers.contains(actingPlayer):
+                #    selectedPlayer.challengingPlayers.remove(actingPlayer)
+                #actingPlayer.opponents.add(selectedPlayer)
+                #actingPlayer.challengingPlayers.remove(selectedPlayer)
+                #if actingPlayer.challengedPlayers.contains(selectedPlayer):
+                #    actingPlayer.challengedPlayers.remove(selectedPlayer)
 
                 async_to_sync(self.channel_layer.group_send)(
                     player_group,
@@ -76,7 +86,8 @@ class ChallengeConsumer(WebsocketConsumer):
 
 
                 if selectedPlayer.username == 'demo':
-                    if not selectedPlayer.opponents.contains(actingPlayer) and not actingPlayer.opponents.contains(selectedPlayer):
+                    if not selectedPlayer.opponents.filter(id=actingPlayer.id).exists() and not actingPlayer.opponents..filter(id=selectedPlayer.id).exists():
+                    #if not selectedPlayer.opponents.contains(actingPlayer) and not actingPlayer.opponents.contains(selectedPlayer):
 
                         newGame = Game()
                         newGame.whitePlayer = actingPlayer
