@@ -86,7 +86,7 @@ class ChallengeConsumer(WebsocketConsumer):
 
 
                 if selectedPlayer.username == 'demo':
-                    if not selectedPlayer.opponents.filter(id=actingPlayer.id).exists() and not actingPlayer.opponents..filter(id=selectedPlayer.id).exists():
+                    if not selectedPlayer.opponents.filter(id=actingPlayer.id).exists() and not actingPlayer.opponents.filter(id=selectedPlayer.id).exists():
                     #if not selectedPlayer.opponents.contains(actingPlayer) and not actingPlayer.opponents.contains(selectedPlayer):
 
                         newGame = Game()
