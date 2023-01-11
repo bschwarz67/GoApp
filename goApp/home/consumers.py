@@ -55,8 +55,6 @@ class ChallengeConsumer(WebsocketConsumer):
                 selectedPlayer.challengedPlayers.remove(actingPlayer)
                 selectedPlayer.opponents.add(actingPlayer)
 
-                #if Entry.objects.filter(id=selectedPlayer.id).exists():
-
                 if selectedPlayer.challengingPlayers.filter(id=actingPlayer.id).exists():
                     selectedPlayer.challengingPlayers.remove(actingPlayer)
                 actingPlayer.opponents.add(selectedPlayer)
@@ -65,7 +63,7 @@ class ChallengeConsumer(WebsocketConsumer):
                     actingPlayer.challengedPlayers.remove(selectedPlayer)
 
 
-                
+                #changed from below code to above to be able to launch on Render as Django 4.x isnt supported there yet
                 #if selectedPlayer.challengingPlayers.contains(actingPlayer):
                 #    selectedPlayer.challengingPlayers.remove(actingPlayer)
                 #actingPlayer.opponents.add(selectedPlayer)
@@ -87,6 +85,8 @@ class ChallengeConsumer(WebsocketConsumer):
 
                 if selectedPlayer.username == 'demo':
                     if not selectedPlayer.opponents.filter(id=actingPlayer.id).exists() and not actingPlayer.opponents.filter(id=selectedPlayer.id).exists():
+                    
+                    #changed from below code to above to be able to launch on Render as Django 4.x isnt supported there yet
                     #if not selectedPlayer.opponents.contains(actingPlayer) and not actingPlayer.opponents.contains(selectedPlayer):
 
                         newGame = Game()
