@@ -95,12 +95,14 @@ WSGI_APPLICATION = 'goApp.wsgi.application'
 
 DB_USERNAME = config('DB_USERNAME')
 DB_PASSWORD = config('DB_PASSWORD')
+DB_INTERNAL_HOSTNAME = config('DB_INTERNAL_HOSTNAME')
+DB_NAME = config('DB_NAME')
 
 DATABASES = {
 
     'default': dj_database_url.config(
         # Feel free to alter this value to suit your needs.
-        default='postgres://{}:{}@dpg-cevk5j2rrk0eqcuqoorg-a:5432/go_app_db_e7y9'.format(DB_USERNAME, DB_PASSWORD),
+        default='postgres://{}:{}@{}:5432/{}'.format(DB_USERNAME, DB_PASSWORD, DB_INTERNAL_HOSTNAME, DB_NAME),
         conn_max_age=600
     ),
 
