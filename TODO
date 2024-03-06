@@ -5,3 +5,6 @@ look at cache header options in django for how server  interacts with browser ca
 replies in this stackoverflow post for details. this is to prevent having ios browser presisting cache when 
 navigating to some goapp pages with back/forward arrows and causing the websocket connection to stay closed
 https://stackoverflow.com/questions/8788802/prevent-safari-loading-from-cache-when-back-button-is-clicked/13123626#13123626
+
+
+put variable previousPiecePositions in player model into game as two different variables for each player to avoid cases when a player is in two different games and the previousPiecePositions value becomes important, could become overwritten by another game before the first game's move is invalidated.
